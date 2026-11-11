@@ -52,7 +52,7 @@ test("a zero download immediately resolves to the fixed DMG release asset", () =
   }
   const url = new URL(DOWNLOAD_URL);
   assert.equal(url.origin, "https://github.com");
-  assert.equal(url.pathname, "/soloiaros/snowy-mac/releases/latest/download/Snowy-macOS-arm64.dmg");
+  assert.equal(url.pathname, "/BodhiMooij/window-weather/releases/latest/download/Snowy-macOS-arm64.dmg");
 });
 
 test("a support-only zero amount does not unexpectedly start a download", () => {
@@ -60,20 +60,6 @@ test("a support-only zero amount does not unexpectedly start a download", () => 
     ok: true,
     kind: "no-contribution",
   });
-});
-
-test("zero-dollar Windows downloads use the pinned installer for the chosen architecture", () => {
-  for (const architecture of ["x64", "arm64"]) {
-    const context = `windows-${architecture}`;
-    const url = new URL(DOWNLOADS[context]);
-    assert.equal(url.origin, "https://github.com");
-    assert.equal(url.pathname, `/soloiaros/snowy-mac/releases/download/windows-v0.1.4.0/Snowy-Setup-${architecture}.exe`);
-    assert.deepEqual(createPaymentIntent("0", context), {
-      ok: true,
-      kind: "download",
-      url: url.href,
-    });
-  }
 });
 
 test("positive amounts never pretend that checkout or payment has completed", () => {
@@ -91,5 +77,5 @@ test("positive amounts never pretend that checkout or payment has completed", ()
   assert.equal(createPaymentIntent("-2", "download").ok, false);
   assert.equal(createPaymentIntent("1", "https://example.com").ok, false);
   assert.equal(createPaymentIntent("1", "constructor").ok, false);
-  assert.equal(createPaymentIntent("1", ["windows-x64"]).ok, false);
+  assert.equal(createPaymentIntent("1", ["download"]).ok, false);
 });

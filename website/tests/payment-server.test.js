@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Webhook} from 'standardwebhooks';
 import worker,{PaymentState,ORIGIN,validateCheckout,checkoutURL} from '../server/worker.js';
-import {DOWNLOADS} from '../src/payments.js';
 const ref='d15b0f1b-a942-4d07-88c0-7731e6b5bdbc';
 const secret='whsec_'+Buffer.from('snowy-testing-secret-32-bytes-long').toString('base64');
 function environment() {
@@ -29,7 +28,7 @@ test('server rejects tampered amounts, products, redirects and request identifie
  for (const changes of [
    {amountCents: -1}, {amountCents: 1.1}, {amountCents: 100001},
    {product: 'evil'}, {return_url: 'https://evil.test'},
-   {context: 'other'}, {context: 'constructor'}, {context: ['windows-x64']},
+   {context: 'other'}, {context: 'constructor'}, {context: ['download']},
    {requestId: 'x'}, {requestId: [ref]},
  ]) {
    assert.equal(validateCheckout({...valid, ...changes}), false);
@@ -48,29 +47,6 @@ test('zero bypasses Polar, duplicate concurrent requests reuse exactly one check
  assert.equal(checkouts[0].success_url, `${ORIGIN}/?payment=${ref}`);
  assert.equal(checkouts[0].return_url, `${ORIGIN}/?payment_cancelled=1`);
  assert.equal((await worker.fetch(request({...valid,amountCents:300}),env)).status,409);
-});
-test('Windows checkout preserves the selected installer through free, paid and cancelled flows', async () => {
-  for (const context of ['windows-x64', 'windows-arm64']) {
-    const {env, checkouts} = environment();
-    const value = {...valid, context};
-    const free = await worker.fetch(request({...value, amountCents: 0}), env);
-    assert.deepEqual(await free.json(), {url: DOWNLOADS[context], free: true});
-    assert.equal(checkouts.length, 0);
-
-    const paid = await worker.fetch(request(value), env);
-    assert.equal(paid.status, 200);
-    assert.equal(checkouts.length, 1);
-    assert.equal(checkouts[0].success_url, `${ORIGIN}/?payment=${ref}&build=${context}`);
-    assert.equal(checkouts[0].return_url, `${ORIGIN}/?payment_cancelled=1&build=${context}`);
-    assert.equal(checkouts[0].metadata.snowy_context, context);
-
-    const status = await worker.fetch(new Request(`${ORIGIN}/api/payment?ref=${ref}`), env);
-    assert.deepEqual(await status.json(), {status: 'succeeded', context, amountCents: 200});
-    const differentBuild = context === 'windows-x64' ? 'windows-arm64' : 'windows-x64';
-    const conflict = await worker.fetch(request({...value, context: differentBuild}), env);
-    assert.equal(conflict.status, 409);
-    assert.equal(checkouts.length, 1);
-  }
 });
 test('provider ambiguity cannot create a second checkout on retry',async()=>{
  const {env}=environment();let calls=0;env.POLAR_FETCH=async()=>{calls++;throw Error('timeout');};

@@ -1,9 +1,25 @@
-# Cloudflare deployment
+# Deployment
 
-Production is **https://snowy.aauburn.com**, served by the `snowy` Worker with
-Cloudflare Static Assets. The Worker handles payment API routes and uses small SQLite Durable Objects
-for checkout idempotency, rate buckets and webhook deduplication. Static files
-still bypass Worker execution. There is no client analytics.
+The download page is **https://windowweather.bodhimooij.com**.
+
+bodhimooij.com already points at Vercel, and its DNS is served by Strato
+(`shades02.rzone.de` / `docks20.rzone.de`). Publish this `website` directory as
+its own Vercel project, with the root directory set to `website`. `vercel.json`
+builds `dist` and serves that static output. In the Vercel project, add the
+domain `windowweather.bodhimooij.com`. In Strato DNS, add a CNAME:
+
+    windowweather.bodhimooij.com.  CNAME  cname.vercel-dns.com.
+
+The free Mac download is a public GitHub release and does not need the payment
+Worker. Paid checkout still goes through the Cloudflare Worker below, which
+accepts only `https://windowweather.bodhimooij.com` as the checkout origin.
+
+## Cloudflare Worker
+
+The `snowy` Worker serves payment API routes with Cloudflare Static Assets. It
+uses small SQLite Durable Objects for checkout idempotency, rate buckets and
+webhook deduplication. Static files still bypass Worker execution. There is no
+client analytics.
 
 ## Publish
 
@@ -28,9 +44,10 @@ store; never add tokens to this repository. For unattended deployments, use a
 scoped account-owned API token in the CI secret store rather than committing
 OAuth credentials.
 
-`wrangler.jsonc` owns the exact `snowy.aauburn.com` Custom Domain. Cloudflare
-manages its DNS and HTTPS certificate. It does not modify other hostnames or
-any zone-wide settings. The `workers.dev` and version preview URLs are disabled.
+`wrangler.jsonc` still owns the earlier `snowy.aauburn.com` Custom Domain.
+Leave that route in place: `bodhimooij.com` is not in that Cloudflare account,
+so a custom domain for `windowweather.bodhimooij.com` cannot be attached there. The
+`workers.dev` and version preview URLs are disabled.
 The earlier private Sites preview remains a separate publication.
 
 ## Delivery behavior

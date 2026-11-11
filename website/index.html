@@ -13,15 +13,17 @@
     <meta name="theme-color" content="#102c4c" />
     <meta
       name="description"
-      content="Snowy brings interactive snow to Mac and Windows. It lands on windows, piles up, and sweeps away with your cursor. Free and open source."
+      content="Window Weather lets snow and autumn leaves settle on your Mac windows. They pile up, travel with the window, and sweep away with your cursor."
     />
-    <meta property="og:title" content="Snowy — a little winter for your desktop" />
+    <meta property="og:title" content="Window Weather for macOS" />
+    <meta property="og:url" content="https://windowweather.bodhimooij.com/" />
     <meta
       property="og:description"
-      content="Your windows have a forecast. A free, open-source app for Mac and Windows, with an interactive desktop to play in."
+      content="Your windows have a forecast. A free, open-source app for Mac, with an interactive desktop to play in."
     />
     <meta property="og:type" content="website" />
-    <title>Snowy — a little winter for your desktop</title>
+    <title>Window Weather for macOS</title>
+    <link rel="canonical" href="https://windowweather.bodhimooij.com/" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./src/app.js"></script>
@@ -29,15 +31,15 @@
   <body>
     <a class="skip-link" href="#download">Skip to download</a>
     <header class="menubar" aria-label="Desktop menu">
-      <button class="menu-brand" data-open="welcome" aria-label="About Snowy">
+      <button class="menu-brand" data-open="welcome" aria-label="About Window Weather">
         <svg aria-hidden="true"><use href="./assets/icons.svg#snow" /></svg
-        ><strong>Snowy</strong>
+        ><strong>Window Weather</strong>
       </button>
-      <nav class="desktop-menu" aria-label="Snowy menu">
+      <nav class="desktop-menu" aria-label="Window Weather menu">
         <button data-open="readme">Read me</button
         ><button data-open="weather">Weather</button
         ><a
-          href="https://github.com/soloiaros/snowy-mac"
+          href="https://github.com/BodhiMooij/window-weather"
           target="_blank"
           rel="noopener noreferrer"
           >Source</a
@@ -49,7 +51,7 @@
       </div>
     </header>
 
-    <main id="desktop" class="desktop" aria-label="Interactive Snowy desktop">
+    <main id="desktop" class="desktop" aria-label="Interactive Window Weather desktop">
       <div class="wallpaper-art" aria-hidden="true">
         <div class="ridge ridge-back"></div>
         <div class="ridge ridge-front"></div>
@@ -64,31 +66,31 @@
         id="window-welcome"
         class="window welcome-window"
         data-window="welcome"
-        aria-label="About Snowy"
+        aria-label="About Window Weather"
       >
         <header
           class="titlebar"
           tabindex="0"
-          aria-label="Move About Snowy window with arrow keys"
+          aria-label="Move About Window Weather window with arrow keys"
         >
           <div class="traffic-lights">
             <button
               class="light close"
               data-close="welcome"
-              aria-label="Close About Snowy"
+              aria-label="Close About Window Weather"
             ></button
             ><button
               class="light minimize"
               data-close="welcome"
-              aria-label="Minimize About Snowy"
+              aria-label="Minimize About Window Weather"
             ></button
             ><button
               class="light maximize"
               data-maximize="welcome"
-              aria-label="Resize About Snowy"
+              aria-label="Resize About Window Weather"
             ></button>
           </div>
-          <span>Snowy</span
+          <span>Window Weather</span
           ><svg class="title-icon" aria-hidden="true">
             <use href="./assets/icons.svg#snow" />
           </svg>
@@ -97,8 +99,8 @@
           <svg class="app-icon" aria-hidden="true">
             <use href="./assets/icons.svg#snow" />
           </svg>
-          <h1>Snowy</h1>
-          <p class="welcome-subtitle">A little winter for your desktop.</p>
+          <h1>Window Weather</h1>
+          <p class="welcome-subtitle">Snow and leaves on your windows, for macOS.</p>
           <div class="platform-downloads">
             <button
               id="download"
@@ -108,21 +110,15 @@
               aria-controls="download-dialog"
               ><svg aria-hidden="true">
                 <use href="./assets/icons.svg#laptop" /></svg
-              >Get Snowy for Mac</button
+              >Get Window Weather for Mac</button
             >
-            <a id="windows-download" class="aqua-button download-button" aria-haspopup="dialog"
-              aria-controls="download-dialog"
-              href="https://github.com/soloiaros/snowy-mac/releases/tag/windows-v0.1.4.0">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z" /></svg>
-              Windows Beta
-            </a>
           </div>
           <p class="download-detail">
-            macOS 14+ on Apple silicon · Windows 11
+            macOS 14+ on Apple silicon
           </p>
           <a
             class="quiet-link"
-            href="https://github.com/soloiaros/snowy-mac#build-it-yourself"
+            href="https://github.com/BodhiMooij/window-weather#build-it-yourself"
             target="_blank"
             rel="noopener noreferrer"
             >Build it yourself</a
@@ -130,7 +126,7 @@
         </div>
         <button
           class="resize-grip"
-          aria-label="Resize About Snowy window"
+          aria-label="Resize About Window Weather window"
         ></button>
       </section>
 
@@ -249,7 +245,7 @@
           <span>read me.txt</span>
         </header>
         <div class="window-body readme-body">
-          <h2>Give winter<br />somewhere to land.</h2>
+          <h2>Give the season<br />somewhere to land.</h2>
           <ol class="instructions">
             <li>
               <span>1</span>
@@ -272,7 +268,7 @@
         id="window-terminal"
         class="window terminal-window"
         data-window="terminal"
-        aria-label="Snowy Terminal"
+        aria-label="Window Weather Terminal"
         hidden
       >
         <header
@@ -297,15 +293,15 @@
               aria-label="Resize Terminal"
             ></button>
           </div>
-          <span>snowy — terminal</span>
+          <span>window-weather — terminal</span>
         </header>
         <div class="window-body terminal-body">
           <div id="terminal-output" class="terminal-output" aria-live="polite">
-            <p>Snowy Desktop 0.9</p>
+            <p>Window Weather Desktop 0.10</p>
             <p>A very small shell. Try “help”.</p>
           </div>
           <form id="terminal-form" autocomplete="off">
-            <label for="terminal-input">snowy ~ %</label
+            <label for="terminal-input">window-weather ~ %</label
             ><input
               id="terminal-input"
               name="command"
@@ -358,14 +354,13 @@
           <h2>A small wish list.</h2>
           <p>The best way to support my work is to follow along.</p>
           <div class="social-links">
-            <a href="https://www.instagram.com/archieauburn/" target="_blank" rel="noopener noreferrer">Instagram <span aria-hidden="true">↗</span></a>
-            <a href="https://www.tiktok.com/@archieauburn" target="_blank" rel="noopener noreferrer">TikTok <span aria-hidden="true">↗</span></a>
+            <a href="https://www.bodhimooij.com/" target="_blank" rel="noopener noreferrer">bodhimooij.com <span aria-hidden="true">↗</span></a>
           </div>
           <form id="support-form" class="support-form" novalidate>
-            <label for="support-amount">Really enjoying Snowy?<br />You can throw in a buck or two.</label>
+            <label for="support-amount">Really enjoying Window Weather?<br />You can throw in a buck or two.</label>
             <div class="support-input-row">
               <div class="amount-field"><span aria-hidden="true">$</span><input id="support-amount" name="amount" inputmode="decimal" type="text" value="2" maxlength="16" aria-label="Support amount in US dollars" aria-describedby="support-feedback" autocomplete="off" /></div>
-              <button class="mini-button" type="submit">Support Snowy</button>
+              <button class="mini-button" type="submit">Support Window Weather</button>
             </div>
             <p id="support-feedback" class="payment-feedback" role="status" hidden></p>
           </form>
@@ -391,7 +386,7 @@
       <span class="desktop-caption">Drag a window. Make a little weather.</span>
       <footer class="desktop-footer">
         <a
-          href="https://github.com/soloiaros/snowy-mac"
+          href="https://github.com/BodhiMooij/window-weather"
           target="_blank"
           rel="noopener noreferrer"
           >View on GitHub</a
@@ -404,10 +399,10 @@
       <button
         class="dock-item"
         data-open="welcome"
-        aria-label="Open About Snowy"
+        aria-label="Open About Window Weather"
       >
         <svg aria-hidden="true"><use href="./assets/icons.svg#snow" /></svg
-        ><span class="dock-tooltip">Snowy</span><i aria-hidden="true"></i>
+        ><span class="dock-tooltip">Window Weather</span><i aria-hidden="true"></i>
       </button>
       <button
         class="dock-item"
@@ -428,8 +423,8 @@
       <span class="dock-separator" aria-hidden="true"></span>
       <a
         class="dock-item"
-        href="https://github.com/soloiaros/snowy-mac"
-        aria-label="View Snowy source code on GitHub"
+        href="https://github.com/BodhiMooij/window-weather"
+        aria-label="View Window Weather source code on GitHub"
         target="_blank"
         rel="noopener noreferrer"
         ><svg aria-hidden="true"><use href="./assets/icons.svg#code" /></svg
@@ -443,12 +438,12 @@
     <dialog id="download-dialog" class="download-dialog" aria-labelledby="download-title" aria-describedby="download-description download-later">
       <header class="dialog-titlebar">
         <div class="traffic-lights"><button id="download-close" class="light close" aria-label="Close download window" type="button"></button></div>
-        <span>A little winter, your price</span>
+        <span>Snow and leaves, your price</span>
       </header>
       <div class="download-dialog-body">
         <svg class="dialog-app-icon" aria-hidden="true"><use href="./assets/icons.svg#snow" /></svg>
         <h2 id="download-title">What feels right to you?</h2>
-        <p id="download-description">Snowy is yours at any price. Yes, $0 too.</p>
+        <p id="download-description">Window Weather is yours at any price. Yes, $0 too.</p>
         <form id="download-form" novalidate>
           <label for="download-amount">Your price <span>(USD)</span></label>
           <div class="amount-field download-amount-field"><span aria-hidden="true">$</span><input id="download-amount" name="amount" type="text" inputmode="decimal" maxlength="16" value="2.99" autocomplete="off" aria-describedby="download-feedback" autofocus /></div>
@@ -458,46 +453,27 @@
             <button type="button" data-amount="2" aria-pressed="false">$2</button>
             <button type="button" data-amount="5" aria-pressed="false">$5</button>
           </div>
-          <p id="download-later">Try it first. If you enjoy the snow, you can always come back and donate later.</p>
+          <p id="download-later">Try it first. If you enjoy it, you can always come back and donate later.</p>
           <p id="download-feedback" class="payment-feedback" role="status" hidden></p>
           <button id="download-free" class="quiet-button" type="button" hidden>Download for $0 instead</button>
-          <div id="windows-download-options" class="windows-download-options" role="group" aria-labelledby="windows-download-label" aria-describedby="windows-download-hint" hidden>
-            <p id="windows-download-label">Choose your Windows installer</p>
-            <p id="windows-download-hint">Choose $0 to download right away.</p>
-            <div class="windows-download-choice">
-              <button class="aqua-button" type="submit" data-build="windows-x64" aria-describedby="windows-x64-note">Download x64</button>
-              <p id="windows-x64-note" class="windows-architecture-note">
-                <strong>Most Windows PCs</strong>
-                <span>Intel or AMD</span>
-              </p>
-            </div>
-            <div class="windows-download-choice">
-              <button class="aqua-button" type="submit" data-build="windows-arm64" aria-describedby="windows-arm-note">Download ARM</button>
-              <p id="windows-arm-note" class="windows-architecture-note">
-                <strong>Windows on Arm</strong>
-                <span>Snapdragon and other Arm chips</span>
-              </p>
-            </div>
-          </div>
           <div class="dialog-actions">
             <button id="download-cancel" class="mini-button" type="button">Cancel</button>
             <button id="download-submit" class="aqua-button" type="submit">Support &amp; download</button>
           </div>
         </form>
-        <p id="mac-install-detail" class="install-detail">Open the DMG, then drag Snowy into Applications.</p>
+        <p id="mac-install-detail" class="install-detail">Open the DMG, then drag Window Weather into Applications.</p>
       </div>
     </dialog>
     <dialog id="beta-dialog" class="download-dialog" aria-labelledby="beta-title" aria-describedby="beta-description">
       <header class="dialog-titlebar">
         <div class="traffic-lights"><button class="light close" aria-label="Close beta notice" form="beta-actions" type="submit"></button></div>
-        <span>Snowy</span>
+        <span>Window Weather</span>
       </header>
       <div class="download-dialog-body">
         <svg class="dialog-app-icon" aria-hidden="true"><use href="./assets/icons.svg#snow" /></svg>
-        <h2 id="beta-title">Snowy is in beta</h2>
+        <h2 id="beta-title">Window Weather is in beta</h2>
         <div id="beta-description">
-          <p id="mac-beta-description">If macOS blocks Snowy on first launch, go to <strong>System Settings → Privacy &amp; Security → Open Anyway</strong> and confirm for this download.</p>
-          <p id="windows-beta-description" hidden>Open the unsigned beta installer from Downloads. If SmartScreen says “Windows protected your PC,” verify you downloaded it through Snowy’s site, then choose <strong>More info → Run anyway</strong> if offered. If Windows still blocks setup, leave protections on.</p>
+          <p id="mac-beta-description">If macOS blocks Window Weather on first launch, go to <strong>System Settings → Privacy &amp; Security → Open Anyway</strong> and confirm for this download.</p>
         </div>
         <form id="beta-actions" class="dialog-actions" method="dialog">
           <button class="aqua-button" type="submit" autofocus>Got it</button>
@@ -510,8 +486,8 @@
     <noscript
       ><div class="noscript-note">
         The interactive desktop needs JavaScript. You can still
-        <a href="https://github.com/soloiaros/snowy-mac/releases"
-          >download Snowy from GitHub</a
+        <a href="https://github.com/BodhiMooij/window-weather/releases"
+          >download Window Weather from GitHub</a
         >.
       </div></noscript
     >

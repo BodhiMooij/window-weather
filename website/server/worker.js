@@ -1,6 +1,6 @@
 import { Webhook } from 'standardwebhooks';
 import { DOWNLOADS, DOWNLOAD_URL, MAX_AMOUNT_CENTS } from '../src/payments.js';
-export const ORIGIN = 'https://snowy.aauburn.com';
+export const ORIGIN = 'https://windowweather.bodhimooij.com';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function json(data, status = 200) {
   return Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' } });
@@ -31,7 +31,7 @@ export function checkoutURL(value) {
 async function polar(env, path, options = {}) {
   const response = await (env.POLAR_FETCH || fetch)('https://api.polar.sh/v1/' + path, {
     ...options, redirect: 'manual', signal: AbortSignal.timeout(12000),
-    headers: { Authorization: `Bearer ${env.POLAR_ACCESS_TOKEN}`, 'Polar-Version': '2026-10', 'Content-Type': 'application/json', 'User-Agent': 'Snowy/0.9.0' },
+    headers: { Authorization: `Bearer ${env.POLAR_ACCESS_TOKEN}`, 'Polar-Version': '2026-10', 'Content-Type': 'application/json', 'User-Agent': 'WindowWeather/0.10.1' },
   });
   if (!response.ok) { console.error('Polar request failed', response.status); throw Error('provider'); }
   return response.json();
@@ -50,7 +50,7 @@ export default {
     try {
       if (url.pathname === '/api/checkout') {
         if (request.method !== 'POST') return json({error:'Method not allowed.'},405);
-        if (request.headers.get('origin') !== ORIGIN) return json({error:'Open Snowy to start checkout.'},403);
+        if (request.headers.get('origin') !== ORIGIN) return json({error:'Open Window Weather to start checkout.'},403);
         if (!request.headers.get('content-type')?.startsWith('application/json')) return json({error:'JSON required.'},415);
         if (!await limit(request,env,'checkout',15)) return json({error:'Please wait a minute before trying again.'},429);
         let value; try { value = JSON.parse(await body(request,1024)); } catch { return json({error:'Invalid request.'},400); }
@@ -72,7 +72,7 @@ export default {
           const raw = await body(request,262144);
           event = new Webhook(env.POLAR_WEBHOOK_SECRET).verify(raw, Object.fromEntries(request.headers));
         } catch { return json({error:'Invalid signature.'},403); }
-        // No fulfillment gate: Snowy is free. Only deduplicate authenticated events;
+        // No fulfillment gate: Window Weather is free. Only deduplicate authenticated events;
         // order state is always retrieved directly from Polar on a payment return.
         return state(env,`event:${id}`).fetch(new Request('https://internal/event',{method:'POST',body:JSON.stringify({ type: event.type })}));
       }
@@ -119,11 +119,10 @@ export class PaymentState {
       await storage.put('checkout',{amountCents:value.amountCents,context:value.context});
       await storage.setAlarm(Date.now()+86400000);
       try {
-        const build = value.context.startsWith('windows-') ? `&build=${value.context}` : '';
         const checkout = await polar(this.env,'checkouts/',{method:'POST',body:JSON.stringify({
           products:[this.env.POLAR_PRODUCT_ID],amount:value.amountCents,
-          success_url:`${ORIGIN}/?payment=${value.requestId}${build}`,
-          return_url:`${ORIGIN}/?payment_cancelled=1${build}`,
+          success_url:`${ORIGIN}/?payment=${value.requestId}`,
+          return_url:`${ORIGIN}/?payment_cancelled=1`,
           metadata:{snowy_context:value.context},allow_discount_codes:false,
         })});
         if (!checkoutURL(checkout.url) || !checkout.id) throw Error('provider url');

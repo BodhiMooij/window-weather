@@ -78,7 +78,7 @@ const windPad = document.querySelector("#wind-pad");
 const windArrow = document.querySelector("#wind-arrow");
 const terminalInput = document.querySelector("#terminal-input");
 const terminalOutput = document.querySelector("#terminal-output");
-const repositoryURL = "https://github.com/soloiaros/snowy-mac";
+const repositoryURL = "https://github.com/BodhiMooij/window-weather";
 
 function persist() {
   savePreferences(storage, preferences);
@@ -780,7 +780,7 @@ document.querySelector("#terminal-form").addEventListener("submit", (event) => {
   const command = parseCommand(terminalInput.value);
   terminalInput.value = "";
   if (!command.raw) return;
-  terminalLine(`snowy ~ % ${command.raw}`, "command");
+  terminalLine(`window-weather ~ % ${command.raw}`, "command");
   if (!command.known) {
     terminalLine("Unknown forecast. Try “help”.");
     return;
@@ -791,7 +791,7 @@ document.querySelector("#terminal-form").addEventListener("submit", (event) => {
       terminalLine("clear    Clear this terminal.");
       terminalLine("snow     Make it a flurry.");
       terminalLine("calm     Put the wind down.");
-      terminalLine("about    About Snowy.");
+      terminalLine("about    About Window Weather.");
       terminalLine("github   Open the source code.");
       terminalLine("defrost  Check the seasonal freezer.");
       break;
@@ -812,7 +812,7 @@ document.querySelector("#terminal-form").addEventListener("submit", (event) => {
       break;
     case "about":
       terminalLine(
-        "Snowy is a little winter for your Mac. Free, open source, and entirely unnecessary.",
+        "Window Weather puts snow and autumn leaves on your Mac windows. Free, open source, and entirely unnecessary.",
       );
       terminalLine("macOS 14+ · Apple silicon");
       break;

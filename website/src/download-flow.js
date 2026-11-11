@@ -6,17 +6,12 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
   const dialog = document.querySelector("#download-dialog");
   const beta = document.querySelector("#beta-dialog");
   const trigger = document.querySelector("#download");
-  const windowsTrigger = document.querySelector("#windows-download");
   const form = document.querySelector("#download-form");
   const amount = document.querySelector("#download-amount");
   const feedback = document.querySelector("#download-feedback");
   const free = document.querySelector("#download-free");
   const submit = document.querySelector("#download-submit");
-  const windowsOptions = document.querySelector("#windows-download-options");
-  const firstWindowsOption = windowsOptions.querySelector("button");
-  const macDetail = document.querySelector("#mac-install-detail");
   const macBetaDescription = document.querySelector("#mac-beta-description");
-  const windowsBetaDescription = document.querySelector("#windows-beta-description");
   const attempts = new Map();
   const busyForms = new Set();
   let activeTrigger = trigger;
@@ -62,7 +57,7 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
     free.hidden = true;
     submit.textContent = parsed.ok && parsed.cents > 0
       ? "Support & download"
-      : "Download Snowy";
+      : "Download Window Weather";
     for (const preset of presets)
       preset.setAttribute("aria-pressed", String(parsed.ok && parsed.cents === Number(preset.dataset.amount) * 100));
   }
@@ -73,21 +68,14 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
     document.body.append(link);
     link.click();
     link.remove();
-    const windows = build !== "download";
-    betaTrigger = windows ? windowsTrigger : trigger;
-    macBetaDescription.hidden = windows;
-    windowsBetaDescription.hidden = !windows;
+    macBetaDescription.hidden = false;
     dialog.close();
     beta.showModal();
   }
 
   function showBuild(build) {
     selectedBuild = build;
-    const windows = build !== "download";
-    activeTrigger = windows ? windowsTrigger : trigger;
-    windowsOptions.hidden = !windows;
-    submit.hidden = windows;
-    macDetail.hidden = windows;
+    activeTrigger = trigger;
   }
 
   function openDownload(build) {
@@ -101,11 +89,6 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
     amount.select();
   }
   trigger.addEventListener("click", () => openDownload("download"));
-  windowsTrigger.addEventListener("click", (event) => {
-    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    openDownload("windows-x64");
-  });
   for (const id of ["download-close", "download-cancel"])
     document.getElementById(id).addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => {
@@ -113,11 +96,6 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
   });
   beta.addEventListener("close", () => betaTrigger.focus({ preventScroll: true }));
   amount.addEventListener("input", updateAmount);
-  amount.addEventListener("keydown", (event) => {
-    if (activeTrigger !== windowsTrigger || event.key !== "Enter" || event.isComposing) return;
-    event.preventDefault();
-    firstWindowsOption.focus();
-  });
   for (const preset of presets)
     preset.addEventListener("click", () => {
       amount.value = preset.dataset.amount;
@@ -126,11 +104,8 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
   free.addEventListener("click", () => download(selectedBuild));
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const build = activeTrigger === windowsTrigger ? event.submitter?.dataset.build : "download";
-    if (!Object.hasOwn(DOWNLOADS, build)) {
-      firstWindowsOption.focus();
-      return;
-    }
+    const build = "download";
+    if (!Object.hasOwn(DOWNLOADS, build)) return;
     selectedBuild = build;
     const intent = createPaymentIntent(amount.value, build);
     if (!intent.ok) {
@@ -159,7 +134,7 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
       supportAmount.focus();
     } else {
       if (intent.kind === "no-contribution")
-        message(supportFeedback, "No contribution needed. Enjoy the snow — following along means a lot.");
+        message(supportFeedback, "No contribution needed. Following along means a lot.");
       else checkout(intent, supportForm, supportFeedback);
     }
   });
@@ -184,7 +159,7 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
     amount.value = "0";
     updateAmount();
     if (!reference) {
-      message(feedback, 'Checkout cancelled. No problem — Snowy is still yours for $0.');
+      message(feedback, 'Checkout cancelled. No problem — Window Weather is still yours for $0.');
       history.replaceState(null, '', location.pathname + location.hash);
     } else {
       message(feedback, 'Confirming your payment…');
@@ -196,22 +171,16 @@ export function setupDownloadFlow({ onOpen = () => {}, onSupportOpen = () => {} 
             if (!response.ok) throw Error('We couldn’t confirm this payment. You can still download for $0.');
             if (result.status === 'succeeded') {
               if (Object.hasOwn(DOWNLOADS, result.context)) showBuild(result.context);
-              message(feedback, result.amountCents > 0 ? 'Thank you for supporting Snowy! Your download is ready below.' : 'Your download is ready. Enjoy the snow!');
+              message(feedback, result.amountCents > 0 ? 'Thank you for supporting Window Weather! Your download is ready below.' : 'Your download is ready.');
               history.replaceState(null, '', location.pathname + location.hash);
               return;
             }
             if (['failed', 'expired'].includes(result.status)) throw Error('This checkout didn’t complete. You can still download for $0.');
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
-          message(feedback, 'Your payment is still processing. Refresh to check again, or download Snowy for $0 now.');
+          message(feedback, 'Your payment is still processing. Refresh to check again, or download Window Weather for $0 now.');
         } catch (error) { message(feedback, error.message); }
       })();
     }
   }
-
-  function openLinkedDownload() {
-    if (location.hash === "#download-windows") openDownload("windows-x64");
-  }
-  window.addEventListener("hashchange", openLinkedDownload);
-  openLinkedDownload();
 }

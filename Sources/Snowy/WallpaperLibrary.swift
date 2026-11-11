@@ -3,8 +3,37 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
+enum BuiltInWallpaper: Hashable, Sendable {
+    case winter(WinterWallpaper)
+    case autumn(AutumnWallpaper)
+
+    static let winterCollection = WinterWallpaper.allCases.map(BuiltInWallpaper.winter)
+    static let autumnCollection = AutumnWallpaper.allCases.map(BuiltInWallpaper.autumn)
+
+    var title: String {
+        switch self {
+        case .winter(let artwork): artwork.title
+        case .autumn(let artwork): artwork.title
+        }
+    }
+
+    var storageKey: String {
+        switch self {
+        case .winter(let artwork): artwork.rawValue
+        case .autumn(let artwork): artwork.rawValue
+        }
+    }
+
+    func makeImage(width: Int) -> CGImage? {
+        switch self {
+        case .winter(let artwork): artwork.makeImage(width: width)
+        case .autumn(let artwork): artwork.makeImage(width: width)
+        }
+    }
+}
+
 enum WallpaperEntry: Hashable, Identifiable, Sendable {
-    case builtIn(WinterWallpaper)
+    case builtIn(BuiltInWallpaper)
     case imported(String)
 
     var id: Self { self }
@@ -78,7 +107,7 @@ actor WallpaperLibrary {
 
     func fileURL(for entry: WallpaperEntry) throws -> URL {
         guard case .builtIn(let artwork) = entry else { return try existingURL(for: entry) }
-        let url = try libraryDirectory().appendingPathComponent("built-in-\(artwork.rawValue).jpg")
+        let url = try libraryDirectory().appendingPathComponent("built-in-\(artwork.storageKey).jpg")
         if !fileManager.fileExists(atPath: url.path) {
             guard let image = artwork.makeImage(width: 3_840) else { throw LibraryError.unavailable }
             try writeJPEG(image, to: url)

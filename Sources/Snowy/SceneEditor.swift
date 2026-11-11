@@ -194,7 +194,29 @@ struct SceneEditor: View {
                 .padding(.horizontal, 14)
                 .padding(.top, 14)
             ScrollView {
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 9), GridItem(.flexible())], spacing: 9) {
+                VStack(alignment: .leading, spacing: 14) {
+                    librarySection("Winter collection", pieces: DecorationCatalog.winterPieces, scene: scene, includeLights: true)
+                    librarySection("Autumn collection", pieces: DecorationCatalog.autumnPieces, scene: scene)
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+            }
+        }
+        .background(Color(nsColor: .underPageBackgroundColor).opacity(0.38))
+    }
+
+    private func libraryGrid<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 9), GridItem(.flexible())], spacing: 9, content: content)
+    }
+
+    private func librarySection(_ title: String, pieces: [DecorationPiece], scene: Binding<DecorationScene>,
+                                includeLights: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
+            libraryGrid {
+                if includeLights {
                     libraryCard("String Lights", id: LightString.dragIdentifier) {
                         guard let desktop else { return }
                         let lights = LightString.placed(near: CGPoint(x: desktop.size.width / 2, y: 0), in: desktop)
@@ -205,27 +227,24 @@ struct SceneEditor: View {
                         StringLightsCardArt().frame(width: 64, height: 40)
                     }
                     .disabled(scene.wrappedValue.lights.count >= DecorationScene.maxLights)
-                    ForEach(DecorationCatalog.all) { piece in
-                        libraryCard(piece.name, id: piece.id) {
-                            let x = min(0.82, 0.22 + Double(scene.wrappedValue.props.count) * 0.055)
-                            let prop = PlacedDecoration(assetID: piece.id, x: x, pushes: piece.movesByDefault)
-                            scene.wrappedValue.props.append(prop)
-                            selection = .prop(prop.id)
-                        } artwork: {
-                            Image(decorative: piece.image, scale: 1)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 62, height: 56)
-                        }
-                        .disabled(scene.wrappedValue.props.count >= DecorationScene.maxProps)
-                    }
                 }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 12)
+                ForEach(pieces) { piece in
+                    libraryCard(piece.name, id: piece.id) {
+                        let x = min(0.82, 0.22 + Double(scene.wrappedValue.props.count) * 0.055)
+                        let prop = PlacedDecoration(assetID: piece.id, x: x, pushes: piece.movesByDefault)
+                        scene.wrappedValue.props.append(prop)
+                        selection = .prop(prop.id)
+                    } artwork: {
+                        Image(decorative: piece.image, scale: 1)
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 62, height: 56)
+                    }
+                    .disabled(scene.wrappedValue.props.count >= DecorationScene.maxProps)
+                }
             }
         }
-        .background(Color(nsColor: .underPageBackgroundColor).opacity(0.38))
     }
 
     private func libraryCard<Artwork: View>(_ name: String, id: String, add: @escaping () -> Void,

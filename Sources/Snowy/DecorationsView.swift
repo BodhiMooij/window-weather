@@ -15,7 +15,7 @@ struct DecorationsView: View {
                         Text("Decorations")
                             .font(.largeTitle.weight(.semibold))
                             .accessibilityAddTraits(.isHeader)
-                        Text("Choose a pixel-art layout for your desktop. Snow settles on the pieces as it falls.")
+                        Text("Choose a pixel-art layout for your desktop. Snow and leaves settle on the pieces as they fall.")
                             .foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 14)
@@ -31,9 +31,17 @@ struct DecorationsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                LazyVGrid(columns: columns, alignment: .leading, spacing: 14) {
-                    ForEach(DecorationLayout.allCases.filter { $0 != .none }) { layout in
-                        layoutCard(layout)
+                ForEach(DecorationLayout.Collection.allCases) { collection in
+                    let layouts = DecorationLayout.allCases.filter { $0 != .none && $0.collection == collection }
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(collection.rawValue)
+                            .font(.headline)
+                            .accessibilityAddTraits(.isHeader)
+                        LazyVGrid(columns: columns, alignment: .leading, spacing: 14) {
+                            ForEach(layouts) { layout in
+                                layoutCard(layout)
+                            }
+                        }
                     }
                 }
 
@@ -75,7 +83,7 @@ struct DecorationsView: View {
             settings.selectPreset(layout)
         } label: {
             VStack(alignment: .leading, spacing: 0) {
-                DecorationThumbnail(pieces: layout.pieces)
+                DecorationThumbnail(pieces: layout.pieces, autumn: layout.collection == .autumn)
                 HStack(spacing: 10) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(layout.title).font(.headline)
@@ -109,6 +117,7 @@ struct DecorationsView: View {
 
 private struct DecorationThumbnail: View {
     let pieces: [DecorationPiece]
+    var autumn = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -131,18 +140,24 @@ private struct DecorationThumbnail: View {
                 let scale = max(0.1, min(availableWidth / max(1, pixelWidth), (geometry.size.height - 12) / pixelHeight))
 
                 ZStack(alignment: .bottom) {
-                    LinearGradient(colors: [Color(red: 0.09, green: 0.17, blue: 0.29),
-                                            Color(red: 0.30, green: 0.44, blue: 0.59)],
+                    LinearGradient(colors: autumn
+                                   ? [Color(red: 0.36, green: 0.22, blue: 0.28), Color(red: 0.86, green: 0.58, blue: 0.36)]
+                                   : [Color(red: 0.09, green: 0.17, blue: 0.29), Color(red: 0.30, green: 0.44, blue: 0.59)],
                                    startPoint: .top, endPoint: .bottom)
                     Canvas { context, size in
                         for index in 0..<19 {
                             let x = size.width * Double((index * 37 + 13) % 97) / 97
                             let y = size.height * Double((index * 23 + 8) % 67) / 76
-                            let rect = CGRect(x: x, y: y, width: 1, height: 1)
-                            context.fill(Path(rect), with: .color(.white.opacity(0.58)))
+                            let rect = CGRect(x: x, y: y, width: autumn ? 2 : 1, height: autumn ? 1 : 1)
+                            let speck = autumn
+                                ? Color(red: 0.86, green: 0.55, blue: 0.22).opacity(0.7)
+                                : Color.white.opacity(0.58)
+                            context.fill(Path(rect), with: .color(speck))
                         }
                     }
-                    Rectangle().fill(Color(red: 0.83, green: 0.89, blue: 0.94))
+                    Rectangle().fill(autumn
+                                     ? Color(red: 0.42, green: 0.28, blue: 0.20)
+                                     : Color(red: 0.83, green: 0.89, blue: 0.94))
                         .frame(height: 6)
                     HStack(alignment: .bottom, spacing: gap) {
                         ForEach(Array(pieces.enumerated()), id: \.offset) { _, piece in

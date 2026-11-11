@@ -26,9 +26,11 @@ extension SnowSimulation {
                     let top0 = SnowVertex(position: SIMD2(x0, y0 - h0), material: SIMD2(1, 1))
                     let top1 = SnowVertex(position: SIMD2(x1, y1 - h1), material: SIMD2(1, 1))
                     quad(bottom0, bottom1, top0, top1)
+                    let rise0: Float = season == .autumn ? autumnCrest(at: x0) : 0.8
+                    let rise1: Float = season == .autumn ? autumnCrest(at: x1) : 0.8
                     quad(top0, top1,
-                         SnowVertex(position: top0.position - SIMD2(0, 0.8), material: SIMD2(1, 0)),
-                         SnowVertex(position: top1.position - SIMD2(0, 0.8), material: SIMD2(1, 0)))
+                         SnowVertex(position: top0.position - SIMD2(0, rise0), material: SIMD2(1, 0)),
+                         SnowVertex(position: top1.position - SIMD2(0, rise1), material: SIMD2(1, 0)))
                 }
             }
             if surface.isElevated, mesh.count > start {
@@ -44,6 +46,14 @@ extension SnowSimulation {
         geometryAge = 0
     }
 
+
+    /// A short, uneven lip so an autumn cap ends in leaf tips instead of a level cut.
+    private func autumnCrest(at x: Float) -> Float {
+        let cell = floor(x / 11)
+        let wobble = sin(cell * 12.9898 + 78.233)
+        let unit = wobble - floor(wobble)
+        return 2.4 + unit * 3.4
+    }
 
     private func quad(_ a: SnowVertex, _ b: SnowVertex, _ c: SnowVertex, _ d: SnowVertex) {
         mesh.append(a)

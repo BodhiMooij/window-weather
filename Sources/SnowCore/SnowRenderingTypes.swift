@@ -8,9 +8,11 @@ public struct SnowParticle: Sendable {
     var phase: Float
     var remainingLife: Float
     public var mass: Float = 1
+    /// Stable leaf color, 0...3. Winter flakes carry it and ignore it.
+    var tint: Float = 0
 }
 
-/// GPU layouts match Metal: 16 bytes per snow vertex and falling-flake instance.
+/// GPU layouts match Metal: 16 bytes per snow vertex and 24 bytes per falling flake.
 public struct SnowVertex: Sendable {
     public var position: SIMD2<Float>
     public var material: SIMD2<Float>
@@ -20,9 +22,13 @@ public struct ParticleInstance: Sendable {
     public var position: SIMD2<Float>
     public var radius: Float
     public var opacity: Float
+    public var spin: Float
+    public var tint: Float
     public init(_ particle: SnowParticle) {
         position = particle.position
         radius = particle.radius
         opacity = particle.opacity * min(1, particle.remainingLife * 2)
+        spin = particle.phase
+        tint = particle.tint
     }
 }

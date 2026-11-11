@@ -9,7 +9,7 @@ final class WelcomeWindowController: NSWindowController, NSWindowDelegate {
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: WelcomeView.contentSize),
                               styleMask: [.titled, .closable],
                               backing: .buffered, defer: false)
-        window.title = "Welcome to Snowy"
+        window.title = "Welcome to Window Weather"
         window.isReleasedWhenClosed = false
         window.tabbingMode = .disallowed
         window.animationBehavior = .none
@@ -39,7 +39,7 @@ enum WelcomeStep: Int, CaseIterable {
         switch self {
         case .desktop: "Snow on your desktop"
         case .wind: "Sweep snow and set the wind"
-        case .menu: "Snowy in the menu bar"
+        case .menu: "Window Weather in the menu bar"
         }
     }
 
@@ -55,7 +55,7 @@ enum WelcomeStep: Int, CaseIterable {
         switch self {
         case .desktop: nil
         case .wind: "Choose Wind… and drag the arrow to set its direction and strength."
-        case .menu: "Choose Open Snowy… for wallpapers, decorations, and the Guide."
+        case .menu: "Choose Open Window Weather… for wallpapers, decorations, and the Guide."
         }
     }
 
@@ -287,9 +287,9 @@ private struct WelcomePreview: View {
             .overlay(alignment: .bottom) { Divider() }
 
             VStack(alignment: .leading, spacing: 7) {
-                Text("Snowy").fontWeight(.semibold)
+                Text("Window Weather").fontWeight(.semibold)
                 Divider()
-                Text("Open Snowy…")
+                Text("Open Window Weather…")
                 Text("Pause Snow")
                 Text("Clear Settled Snow")
                 HStack {

@@ -126,9 +126,50 @@ final class SnowSimulationTests: XCTestCase {
     func testCPUVertexAndInstanceLayoutsMatchMetal() {
         XCTAssertEqual(MemoryLayout<SnowVertex>.stride, 16)
         XCTAssertEqual(MemoryLayout<SnowVertex>.offset(of: \.material), 8)
-        XCTAssertEqual(MemoryLayout<ParticleInstance>.stride, 16)
+        XCTAssertEqual(MemoryLayout<ParticleInstance>.stride, 24)
         XCTAssertEqual(MemoryLayout<ParticleInstance>.offset(of: \.radius), 8)
         XCTAssertEqual(MemoryLayout<ParticleInstance>.offset(of: \.opacity), 12)
+        XCTAssertEqual(MemoryLayout<ParticleInstance>.offset(of: \.spin), 16)
+        XCTAssertEqual(MemoryLayout<ParticleInstance>.offset(of: \.tint), 20)
+    }
+
+    func testAutumnFlakesDifferWhileWinterMotionStaysPut() {
+        let size = SIMD2<Float>(1000, 800)
+        let budget = SimulationBudget(flakes: 8)
+        let baseline = SnowSimulation(size: size, budget: budget, seed: 57)
+        let winter = SnowSimulation(size: size, budget: budget, seed: 57)
+        winter.season = .winter
+        let autumn = SnowSimulation(size: size, budget: budget, seed: 57)
+        autumn.season = .autumn
+        baseline.step(dt: 1 / 30, cursor: nil)
+        winter.step(dt: 1 / 30, cursor: nil)
+        autumn.step(dt: 1 / 30, cursor: nil)
+        XCTAssertFalse(baseline.flakes.isEmpty)
+        XCTAssertEqual(winter.flakes.count, baseline.flakes.count)
+        for index in winter.flakes.indices {
+            XCTAssertEqual(winter.flakes[index].position.x, baseline.flakes[index].position.x, accuracy: 0.0001)
+            XCTAssertEqual(winter.flakes[index].position.y, baseline.flakes[index].position.y, accuracy: 0.0001)
+            XCTAssertEqual(winter.flakes[index].velocity.y, baseline.flakes[index].velocity.y, accuracy: 0.0001)
+            XCTAssertEqual(winter.flakes[index].radius, baseline.flakes[index].radius, accuracy: 0.0001)
+        }
+        XCTAssertGreaterThan(autumn.flakes[0].radius, winter.flakes[0].radius)
+        XCTAssertLessThan(autumn.flakes[0].velocity.y, winter.flakes[0].velocity.y)
+        XCTAssertNotEqual(autumn.flakes[0].velocity.x, winter.flakes[0].velocity.x)
+        XCTAssertGreaterThanOrEqual(autumn.flakes[0].tint, 0)
+        XCTAssertLessThanOrEqual(autumn.flakes[0].tint, 3)
+        let instance = ParticleInstance(autumn.flakes[0])
+        XCTAssertEqual(instance.spin, autumn.flakes[0].phase, accuracy: 0.0001)
+        XCTAssertEqual(instance.tint, autumn.flakes[0].tint, accuracy: 0.0001)
+
+        let piled = SnowSimulation(size: size, budget: SimulationBudget(flakes: 0), seed: 3)
+        let piledAutumn = SnowSimulation(size: size, budget: SimulationBudget(flakes: 0), seed: 3)
+        piledAutumn.season = .autumn
+        let surface = Surface(id: 1, x: 100, y: 200, width: 400)
+        piled.updateSurfaces([surface])
+        piledAutumn.updateSurfaces([surface])
+        piled.drifts[0].accumulate(dt: 4, intensity: 1)
+        piledAutumn.drifts[0].accumulate(dt: 4, intensity: 1)
+        XCTAssertEqual(piled.drifts[0].heights, piledAutumn.drifts[0].heights)
     }
 
     func testResourceBudgetsHoldWithManyWideWindows() {

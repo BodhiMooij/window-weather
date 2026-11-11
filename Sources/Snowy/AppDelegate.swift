@@ -8,6 +8,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSM
     private let pauseItem = NSMenuItem(title: "Pause Snow", action: #selector(togglePause), keyEquivalent: "p")
     private let stateItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private var weatherItems: [NSMenuItem] = []
+    private let seasonSwitch = NSSwitch()
+    private let winterCaption = NSTextField(labelWithString: "Winter")
+    private let leavesCaption = NSTextField(labelWithString: "Autumn")
+    private let clearItem = NSMenuItem(title: "Clear Settled Snow", action: #selector(clearSnow), keyEquivalent: "k")
     private var windPopover: NSPopover?
     private var toolItems: [NSMenuItem] = []
     private var welcomeWindow: WelcomeWindowController?
@@ -65,32 +69,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSM
 
     private func buildMenu() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(systemSymbolName: "snowflake", accessibilityDescription: "Snowy")
+        item.button?.image = NSImage(systemSymbolName: "snowflake", accessibilityDescription: "Window Weather")
         item.button?.image?.isTemplate = true
-        item.button?.toolTip = "Snowy — desktop snowfall"
+        item.button?.toolTip = "Window Weather — on your windows"
         statusItem = item
         let menu = NSMenu()
         menu.autoenablesItems = false
         menu.delegate = self
-        let support = NSMenuItem(title: "Drop some coins", action: #selector(openSupportCheckout), keyEquivalent: "")
-        support.target = self
-        menu.addItem(support)
-        menu.addItem(.separator())
-        let title = NSMenuItem(title: "Snowy", action: nil, keyEquivalent: "")
+        let title = NSMenuItem(title: "Window Weather", action: nil, keyEquivalent: "")
         title.isEnabled = false
         menu.addItem(title)
         stateItem.isEnabled = false
         menu.addItem(stateItem)
         menu.addItem(.separator())
-        let open = NSMenuItem(title: "Open Snowy…", action: #selector(openSnowyWindow), keyEquivalent: "")
+        let open = NSMenuItem(title: "Open Window Weather…", action: #selector(openSnowyWindow), keyEquivalent: "")
         open.target = self
         menu.addItem(open)
         menu.addItem(.separator())
         pauseItem.target = self
         menu.addItem(pauseItem)
-        let clear = NSMenuItem(title: "Clear Settled Snow", action: #selector(clearSnow), keyEquivalent: "k")
-        clear.target = self
-        menu.addItem(clear)
+        clearItem.target = self
+        menu.addItem(clearItem)
         let tool = NSMenuItem(title: "Cursor Tool", action: nil, keyEquivalent: "")
         let tools = NSMenu(title: "Cursor Tool")
         tools.autoenablesItems = false
@@ -111,6 +110,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSM
             weatherItems.append(option)
             menu.addItem(option)
         }
+        let season = NSMenuItem()
+        season.view = makeSeasonSwitch()
+        menu.addItem(season)
         let wind = NSMenuItem(title: "Wind…", action: #selector(showWind), keyEquivalent: "w")
         wind.target = self
         menu.addItem(wind)
@@ -119,7 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSM
         updateItem.isHidden = true
         updateItem.isEnabled = false
         menu.addItem(updateItem)
-        let quit = NSMenuItem(title: "Quit Snowy", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let quit = NSMenuItem(title: "Quit Window Weather", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(quit)
         item.menu = menu
     }
@@ -165,23 +167,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSM
         welcomeWindow?.present()
     }
 
-    @objc private func openSupportCheckout() {
-        guard let url = URL(string: "https://snowy.aauburn.com/#drop-some-coins") else { return }
-        NSWorkspace.shared.open(url)
-    }
-
     private func updateMenu() {
         guard let coordinator else { return }
+        let autumn = coordinator.season == .autumn
         pauseItem.title = coordinator.paused ? "Resume Snow" : "Pause Snow"
+        clearItem.title = autumn ? "Clear Settled Autumn" : "Clear Settled Snow"
+        if let button = statusItem?.button {
+            let symbol = autumn ? "leaf.fill" : "snowflake"
+            button.image = NSImage(systemSymbolName: symbol, accessibilityDescription: autumn ? "Autumn" : "Window Weather")
+            button.image?.isTemplate = true
+            button.toolTip = autumn ? "Window Weather — autumn on your windows" : "Window Weather — winter on your windows"
+        }
         if coordinator.failed { stateItem.title = "Rendering stopped — relaunch to retry" }
         else if coordinator.policy.suspended { stateItem.title = "Resting while your Mac cools down" }
-        else if coordinator.paused { stateItem.title = "Snow is paused" }
-        else if coordinator.policy.reducedMotion { stateItem.title = "Quiet drifts · Reduce Motion" }
-        else if coordinator.policy.particleScale < 1 { stateItem.title = "Gentle snowfall · saving energy" }
-        else { stateItem.title = "Brush a snowy edge to sweep it away" }
+        else if coordinator.paused { stateItem.title = autumn ? "Autumn is paused" : "Snow is paused" }
+        else if coordinator.policy.reducedMotion {
+            stateItem.title = autumn ? "Quiet litter · Reduce Motion" : "Quiet drifts · Reduce Motion"
+        }
+        else {
+            stateItem.title = autumn ? "Brush a leafy edge to sweep it away" : "Brush a snowy edge to sweep it away"
+        }
         for (index, item) in weatherItems.enumerated() {
             item.state = Snowfall.allCases[index] == coordinator.snowfall ? .on : .off
         }
+        seasonSwitch.state = autumn ? .on : .off
+        winterCaption.textColor = autumn ? .secondaryLabelColor : .labelColor
+        leavesCaption.textColor = autumn ? .labelColor : .secondaryLabelColor
         for (index, item) in toolItems.enumerated() {
             item.state = (index == 1 ? coordinator.tool == .shovel : coordinator.tool == .glove) ? .on : .off
         }
@@ -221,5 +232,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSM
     @objc private func setSnowfall(_ sender: NSMenuItem) {
         guard Snowfall.allCases.indices.contains(sender.tag) else { return }
         coordinator?.snowfall = Snowfall.allCases[sender.tag]
+    }
+
+    @objc private func seasonSwitchChanged(_ sender: NSSwitch) {
+        coordinator?.season = sender.state == .on ? .autumn : .winter
+    }
+
+    private func makeSeasonSwitch() -> NSView {
+        let row = NSView(frame: NSRect(x: 0, y: 0, width: 230, height: 32))
+        winterCaption.font = .menuFont(ofSize: 0)
+        leavesCaption.font = .menuFont(ofSize: 0)
+        seasonSwitch.target = self
+        seasonSwitch.action = #selector(seasonSwitchChanged(_:))
+        seasonSwitch.setAccessibilityLabel("Autumn")
+        for view in [winterCaption, seasonSwitch, leavesCaption] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            row.addSubview(view)
+        }
+        NSLayoutConstraint.activate([
+            winterCaption.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 18),
+            winterCaption.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            seasonSwitch.leadingAnchor.constraint(equalTo: winterCaption.trailingAnchor, constant: 10),
+            seasonSwitch.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            leavesCaption.leadingAnchor.constraint(equalTo: seasonSwitch.trailingAnchor, constant: 8),
+            leavesCaption.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+        ])
+        return row
     }
 }

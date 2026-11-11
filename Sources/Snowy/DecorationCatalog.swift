@@ -2,9 +2,23 @@ import CoreGraphics
 import Foundation
 
 enum DecorationLayout: String, CaseIterable, Identifiable {
-    case none, christmasTree, newYork, alpineVillage, winterMarket
+    case none, christmasTree, newYork, alpineVillage, winterMarket, mapleGrove, harvestStand
+
+    enum Collection: String, CaseIterable, Identifiable {
+        case winter = "Winter collection"
+        case autumn = "Autumn collection"
+
+        var id: String { rawValue }
+    }
 
     var id: String { rawValue }
+
+    var collection: Collection {
+        switch self {
+        case .none, .christmasTree, .newYork, .alpineVillage, .winterMarket: .winter
+        case .mapleGrove, .harvestStand: .autumn
+        }
+    }
 
     var title: String {
         switch self {
@@ -13,6 +27,8 @@ enum DecorationLayout: String, CaseIterable, Identifiable {
         case .newYork: "New York"
         case .alpineVillage: "Alpine Village"
         case .winterMarket: "Winter Market"
+        case .mapleGrove: "Maple Grove"
+        case .harvestStand: "Harvest Stand"
         }
     }
 
@@ -23,6 +39,8 @@ enum DecorationLayout: String, CaseIterable, Identifiable {
         case .newYork: "A brownstone, a wreath, and a corner streetlamp."
         case .alpineVillage: "A snug chalet under the pines."
         case .winterMarket: "Hot cocoa and warm lights under a striped awning."
+        case .mapleGrove: "A maple, a pumpkin, and a pile of leaves."
+        case .harvestStand: "Apples, a scarecrow, and a bale of hay."
         }
     }
 
@@ -33,6 +51,8 @@ enum DecorationLayout: String, CaseIterable, Identifiable {
         case .newYork: PixelCatalog.newYork
         case .alpineVillage: PixelCatalog.alpineVillage
         case .winterMarket: PixelCatalog.winterMarket
+        case .mapleGrove: PixelCatalog.mapleGrove
+        case .harvestStand: PixelCatalog.harvestStand
         }
     }
 }
@@ -52,6 +72,8 @@ struct DecorationPiece: Identifiable {
 
 enum DecorationCatalog {
     static let all = DecorationLayout.allCases.flatMap(\.pieces) + PixelCatalog.extras
+    static let winterPieces = DecorationLayout.allCases.filter { $0.collection == .winter }.flatMap(\.pieces) + PixelCatalog.extras
+    static let autumnPieces = DecorationLayout.allCases.filter { $0.collection == .autumn }.flatMap(\.pieces)
     private static let byID = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
     static func piece(_ id: String) -> DecorationPiece? { byID[id] }
@@ -67,6 +89,8 @@ private enum PixelCatalog {
     static let newYork: [DecorationPiece] = [streetlamp(), brownstone(), hydrant()]
     static let alpineVillage: [DecorationPiece] = [pine(), chalet(), snowman()]
     static let winterMarket: [DecorationPiece] = [menuBoard(), marketStall(), cocoaCrate()]
+    static let mapleGrove: [DecorationPiece] = [pumpkin(), maple(), leafPile()]
+    static let harvestStand: [DecorationPiece] = [appleBasket(), scarecrow(), hayBale()]
     static let extras: [DecorationPiece] = [
         candyCane(), sled(), bench(), mailbox(), lantern(), gingerbread(), pineBundle()
     ]
@@ -421,6 +445,94 @@ private enum PixelCatalog {
         p.fill(5, 23, 4, 1, 0xF5E0B9)
         p.fill(11, 23, 4, 1, 0xF5E0B9)
         return p.piece("Gingerbread friend")
+    }
+
+    private static func pumpkin() -> DecorationPiece {
+        var p = PixelSprite(18, 16)
+        p.polygon([(9, 3), (16, 7), (15, 12), (12, 14), (6, 14), (3, 12), (2, 7)], 0xC45A22)
+        p.polygon([(9, 5), (13, 8), (13, 11), (11, 13), (7, 13), (5, 8)], 0xE8923A)
+        p.fill(8, 4, 2, 9, 0xA33C22)
+        p.fill(5, 6, 1, 6, 0xD2652A)
+        p.fill(12, 6, 1, 6, 0xD2652A)
+        p.fill(6, 6, 2, 3, 0xF2C07A)
+        p.fill(8, 0, 2, 4, 0x4E6A32)
+        p.fill(6, 1, 3, 2, 0x6E8A3C)
+        return p.piece("Pumpkin")
+    }
+
+    private static func maple() -> DecorationPiece {
+        var p = PixelSprite(36, 48)
+        p.fill(15, 32, 6, 14, 0x6A4632)
+        p.fill(16, 34, 2, 10, 0xA67A52)
+        p.polygon([(18, 4), (33, 16), (31, 24), (34, 32), (26, 38), (10, 38), (2, 30), (5, 20), (3, 14)], 0xC45A22)
+        p.polygon([(18, 2), (27, 12), (25, 18), (29, 28), (18, 32), (9, 26), (7, 14)], 0xE2A23A)
+        p.polygon([(10, 16), (16, 12), (15, 22), (6, 28)], 0xA33C22)
+        p.polygon([(22, 14), (31, 22), (27, 30), (19, 24)], 0x6E6A34)
+        p.fill(8, 40, 3, 2, 0xE2A23A)
+        p.fill(22, 41, 4, 2, 0xC45A22)
+        p.fill(13, 43, 3, 2, 0xA33C22)
+        return p.piece("Maple")
+    }
+
+    private static func leafPile() -> DecorationPiece {
+        var p = PixelSprite(26, 14)
+        p.polygon([(2, 9), (6, 5), (12, 7), (18, 3), (24, 8), (22, 13), (3, 13)], 0xC45A22)
+        p.polygon([(4, 8), (9, 5), (14, 9), (8, 12)], 0xE2A23A)
+        p.polygon([(13, 5), (20, 4), (22, 9), (15, 11)], 0xA33C22)
+        p.polygon([(8, 3), (11, 1), (13, 4), (9, 6)], 0x6E6A34)
+        p.fill(6, 9, 2, 1, 0xF2C07A)
+        p.fill(17, 8, 2, 1, 0xE8923A)
+        return p.piece("Leaf pile")
+    }
+
+    private static func appleBasket() -> DecorationPiece {
+        var p = PixelSprite(20, 18)
+        p.fill(3, 2, 4, 4, 0xC43B3B)
+        p.fill(4, 3, 2, 2, 0xE86A58)
+        p.fill(8, 1, 4, 4, 0xE2A23A)
+        p.fill(12, 3, 4, 4, 0xA33C22)
+        p.fill(7, 4, 5, 3, 0xD2652A)
+        p.fill(9, 0, 2, 2, 0x5C7A34)
+        p.fill(2, 7, 16, 9, 0x8A5A3A)
+        p.fill(3, 8, 14, 7, 0xC4926A)
+        for column in stride(from: 4, to: 16, by: 3) { p.fill(column, 8, 1, 7, 0x8A5A3A) }
+        p.fill(2, 11, 16, 1, 0x6A4030)
+        p.fill(1, 15, 18, 2, 0x5C3828)
+        return p.piece("Apple basket")
+    }
+
+    private static func scarecrow() -> DecorationPiece {
+        var p = PixelSprite(28, 40)
+        p.fill(10, 0, 8, 3, 0x5C4034)
+        p.fill(7, 3, 14, 2, 0x6A4A32)
+        p.polygon([(10, 5), (18, 5), (19, 8), (17, 12), (11, 12), (9, 8)], 0xE2A23A)
+        p.fill(12, 7, 1, 2, 0x3A2A22)
+        p.fill(15, 7, 1, 2, 0x3A2A22)
+        p.fill(13, 10, 2, 1, 0xA33C22)
+        p.fill(12, 12, 3, 26, 0x6A4632)
+        p.fill(2, 16, 24, 2, 0x6A4632)
+        p.fill(0, 14, 4, 6, 0xE2A23A)
+        p.fill(23, 14, 5, 6, 0xC9843A)
+        p.fill(7, 15, 14, 12, 0x8D4A28)
+        p.fill(8, 16, 12, 10, 0xC46A32)
+        p.fill(8, 20, 4, 3, 0x6E6A34)
+        p.fill(15, 22, 4, 3, 0xA33C22)
+        p.fill(9, 27, 3, 8, 0xE2A23A)
+        p.fill(15, 27, 3, 8, 0xC9843A)
+        p.fill(8, 34, 5, 2, 0x6A4A32)
+        p.fill(15, 34, 5, 2, 0x6A4A32)
+        return p.piece("Scarecrow")
+    }
+
+    private static func hayBale() -> DecorationPiece {
+        var p = PixelSprite(30, 16)
+        p.polygon([(4, 4), (8, 2), (22, 2), (26, 4), (27, 12), (23, 14), (7, 14), (3, 12)], 0xE2A23A)
+        p.fill(5, 5, 20, 8, 0xC9843A)
+        for row in [6, 9, 12] { p.fill(5, row, 20, 1, 0xA37A28) }
+        p.fill(14, 3, 2, 11, 0x6A4A32)
+        p.fill(6, 8, 18, 2, 0x6A4A32)
+        p.fill(6, 4, 4, 2, 0xF2C07A)
+        return p.piece("Hay bale", movesByDefault: false)
     }
 
     private static func pineBundle() -> DecorationPiece {

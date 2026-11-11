@@ -163,7 +163,9 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
             }
             slots[slotIndex].meshRevision = simulation.meshRevision
         }
-        var uniforms = FrameUniforms(viewport: simulation.size, time: Float(now.truncatingRemainder(dividingBy: 3600)))
+        var uniforms = FrameUniforms(viewport: simulation.size,
+                                     time: Float(now.truncatingRemainder(dividingBy: 3600)),
+                                     padding: simulation.season == .autumn ? 1 : 0)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 1)
         let top = min(Int(view.drawableSize.height) - 1,
                       max(0, Int(CGFloat(menuInset) * view.drawableSize.height / max(1, view.bounds.height))))

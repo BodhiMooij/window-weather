@@ -10,7 +10,7 @@ final class SnowyWindowController: NSWindowController {
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 870, height: 620),
                               styleMask: [.titled, .closable, .resizable],
                               backing: .buffered, defer: false)
-        window.title = "Snowy"
+        window.title = "Window Weather"
         window.tabbingMode = .disallowed
         window.isReleasedWhenClosed = false
         window.contentMinSize = NSSize(width: 710, height: 500)

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-    <key>CFBundleName</key><string>Snowy</string>
-    <key>CFBundleDisplayName</key><string>Snowy</string>
+    <key>CFBundleName</key><string>Window Weather</string>
+    <key>CFBundleDisplayName</key><string>Window Weather</string>
     <key>CFBundleExecutable</key><string>Snowy</string>
     <key>CFBundleIdentifier</key><string>app.snowy.desktop</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleIconFile</key><string>Snowy.icns</string>
     <key>CFBundleShortVersionString</key><string>0.10.1</string>
     <key>CFBundleVersion</key><string>14</string>
+    <key>NSHumanReadableCopyright</key><string>Copyright © 2026 Bodhi Mooij</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LSUIElement</key><true/>
     <key>NSHighResolutionCapable</key><true/>
@@ -21,7 +22,7 @@
             <key>UTTypeConformsTo</key><array><string>public.data</string></array>
         </dict>
     </array>
-    <key>SUFeedURL</key><string>https://github.com/soloiaros/snowy-mac/releases/latest/download/appcast.xml</string>
+    <key>SUFeedURL</key><string>https://github.com/BodhiMooij/window-weather/releases/latest/download/appcast.xml</string>
     <key>SUPublicEDKey</key><string>CpsBI13OBwIG3LPiEl2Rlo4M0BrynW+FhM8ScbL6/0Q=</string>
     <key>SURequireSignedFeed</key><true/>
     <key>SUVerifyUpdateBeforeExtraction</key><true/>

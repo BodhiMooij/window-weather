@@ -1,5 +1,10 @@
 import Foundation
 
+public enum Season: String, CaseIterable, Sendable {
+    case winter = "Winter"
+    case autumn = "Autumn"
+}
+
 public enum Snowfall: String, CaseIterable, Sendable {
     case light = "Light"
     case steady = "Steady"

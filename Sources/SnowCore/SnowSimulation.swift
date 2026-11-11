@@ -11,6 +11,7 @@ public final class SnowSimulation {
     public internal(set) var elevatedMeshRanges: [Range<Int>] = []
     public internal(set) var meshRevision: UInt64 = 0
     public var snowfall: Snowfall = .steady
+    public var season: Season = .winter
     public var reducedMotion = false
     public var particleScale: Float = 1
     public var wind = WindSettings() {
@@ -151,11 +152,21 @@ public final class SnowSimulation {
         while flakes.count < desired { flakes.append(newFlake(scattered: true)) }
 
         let wind = sin(elapsed * 0.23) * 7 + sin(elapsed * 0.071) * 5
+        let sway: Float
+        let spinRate: Float
+        switch season {
+        case .winter:
+            sway = 9
+            spinRate = 0.8
+        case .autumn:
+            sway = 18
+            spinRate = 1.6
+        }
         for i in flakes.indices {
             var particle = flakes[i]
-            particle.phase += dt * 0.8
+            particle.phase += dt * spinRate
             if particle.phase > .pi * 2 { particle.phase -= .pi * 2 }
-            let gust = SIMD2(wind + sin(particle.phase) * 9 + self.wind.velocity.x,
+            let gust = SIMD2(wind + sin(particle.phase) * sway + self.wind.velocity.x,
                              self.wind.velocity.y * 0.35)
             particle.velocity += gust
             let deposited = advanceParticle(&particle, dt: dt, recycleOnContact: true)

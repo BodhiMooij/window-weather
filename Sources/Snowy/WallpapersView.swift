@@ -12,9 +12,10 @@ struct WallpapersView: View {
         let name: String
     }
 
-    private let starters = WinterWallpaper.allCases.map(WallpaperEntry.builtIn)
+    private let winter = BuiltInWallpaper.winterCollection.map(WallpaperEntry.builtIn)
+    private let autumn = BuiltInWallpaper.autumnCollection.map(WallpaperEntry.builtIn)
     @State private var imported: [WallpaperEntry] = []
-    @State private var selected = WallpaperEntry.builtIn(.blueHour)
+    @State private var selected = WallpaperEntry.builtIn(.winter(.blueHour))
     @State private var displays: [Display] = []
     @State private var target = DisplayTarget.all
     @State private var showsImporter = false
@@ -30,7 +31,7 @@ struct WallpapersView: View {
                             Text("Wallpapers")
                                 .font(.largeTitle.weight(.semibold))
                                 .accessibilityAddTraits(.isHeader)
-                            Text("Pick a backdrop for the snow.")
+                            Text("Pick a backdrop for the desktop.")
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
@@ -38,7 +39,8 @@ struct WallpapersView: View {
                             .disabled(isWorking)
                     }
 
-                    gallery("Winter collection", entries: starters)
+                    gallery("Winter collection", entries: winter)
+                    gallery("Autumn collection", entries: autumn)
                     if !imported.isEmpty {
                         gallery("Your images", entries: imported)
                     }

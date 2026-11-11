@@ -19,6 +19,3 @@ website/.sites-checkout-*/
 *.pfx
 *.pem
 *.key
-
-windows/**/bin/
-windows/**/obj/

@@ -4,7 +4,24 @@ import Foundation
 extension SnowSimulation {
     func newFlake(scattered: Bool) -> SnowParticle {
         let depth = random.unit()
-        let radius = 0.65 + depth * depth * 1.85
+        let snowRadius = 0.65 + depth * depth * 1.85
+        let radius: Float
+        let driftLimit: Float
+        let fall: Float
+        let opacity: Float
+        switch season {
+        case .winter:
+            radius = snowRadius
+            driftLimit = 7
+            fall = 20 + depth * 43
+            opacity = 0.28 + depth * 0.6
+        case .autumn:
+            // A small leaf on the desktop. Mass still follows the snowflake size, so litter amount is unchanged.
+            radius = 3.5 + depth * 3.2
+            driftLimit = 14
+            fall = 12 + depth * 22
+            opacity = 0.9
+        }
         var position = SIMD2(random.value(radius, max(radius, size.x - radius)), Float(-5))
         if scattered {
             // Density changes must not seed snow inside windows and eject it in an artificial burst.
@@ -16,12 +33,15 @@ extension SnowSimulation {
                 if !occupied { position = candidate; break }
             }
         }
+        let velocity = SIMD2(random.value(-driftLimit, driftLimit), fall)
+        let phase = random.value(0, .pi * 2)
         return SnowParticle(
             position: position,
-            velocity: SIMD2(random.value(-7, 7), 20 + depth * 43),
+            velocity: velocity,
             radius: radius,
-            opacity: 0.28 + depth * 0.6,
-            phase: random.value(0, .pi * 2), remainingLife: 100, mass: radius * radius * 0.45
+            opacity: opacity,
+            phase: phase, remainingLife: 100, mass: snowRadius * snowRadius * 0.45,
+            tint: min(3, floor(phase * 4 / (2 * .pi)))
         )
     }
 

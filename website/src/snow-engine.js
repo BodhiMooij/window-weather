@@ -623,6 +623,7 @@ export class SnowEngine {
     this.wind = { x: 0, y: 0 };
     this.tool = "glove";
     this.intensity = 1;
+    this.season = "winter";
     this.obstacles = [];
     this.profiles = new Map();
     this.flakes = [];
@@ -669,6 +670,9 @@ export class SnowEngine {
   }
   setIntensity(value) {
     this.intensity = clamp(finite(value, 1), 0, 3);
+  }
+  setSeason(value) {
+    this.season = value === "autumn" ? "autumn" : "winter";
   }
   /** A light initial dusting makes the browser playground usable on its first frame. */
   prime(depth = 6) {
@@ -1484,9 +1488,15 @@ export class SnowEngine {
             0,
             p.body.y + p.body.radius + 1,
           );
-          gradient.addColorStop(0, "#ffffff");
-          gradient.addColorStop(0.45, "#f5fbff");
-          gradient.addColorStop(1, "#c7d8e8");
+          if (this.season === "autumn") {
+            gradient.addColorStop(0, "#f2c14e");
+            gradient.addColorStop(0.45, "#e07a2f");
+            gradient.addColorStop(1, "#8d3a22");
+          } else {
+            gradient.addColorStop(0, "#ffffff");
+            gradient.addColorStop(0.45, "#f5fbff");
+            gradient.addColorStop(1, "#c7d8e8");
+          }
           ctx.beginPath();
           ctx.moveTo(p.body.x + begin * p.spacing, top(begin));
           for (let i = begin + 1; i <= finish; i++) {
@@ -1510,8 +1520,13 @@ export class SnowEngine {
       }
     }
     this._drawMaterial(ctx);
-    ctx.fillStyle = "#fff";
-    for (const flake of this.flakes) {
+    const leaves = ["#f2c14e", "#e07a2f", "#c4472a", "#a33b2b"];
+    for (let i = 0; i < this.flakes.length; i++) {
+      const flake = this.flakes[i];
+      ctx.fillStyle =
+        this.season === "autumn"
+          ? leaves[Math.floor(flake.phase * leaves.length) % leaves.length]
+          : "#fff";
       ctx.globalAlpha = flake.opacity;
       ctx.beginPath();
       ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
@@ -1574,7 +1589,7 @@ export class SnowEngine {
           triangle([corners[0], corners[2], corners[3]]);
         }
     }
-    ctx.fillStyle = "#f5fbff";
+    ctx.fillStyle = this.season === "autumn" ? "#d86a32" : "#f5fbff";
     ctx.fill();
   }
 }

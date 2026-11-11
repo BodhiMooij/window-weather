@@ -3,6 +3,7 @@ export const defaults = Object.freeze({
   tool: "glove",
   windX: 0.12,
   windY: 0,
+  season: "winter",
 });
 const finite = (x, fallback) =>
   typeof x === "number" && Number.isFinite(x)
@@ -15,6 +16,7 @@ export function validatePreferences(value) {
       ? v.intensity
       : defaults.intensity,
     tool: ["glove", "shovel"].includes(v.tool) ? v.tool : defaults.tool,
+    season: v.season === "autumn" ? "autumn" : "winter",
     windX: finite(v.windX, defaults.windX),
     windY: finite(v.windY, defaults.windY),
   };

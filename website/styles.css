@@ -1,19 +1,19 @@
 @charset "UTF-8";
 :root {
-  color-scheme: light;
-  --ink: #27323a;
-  --muted: #687d8b;
-  --ice: #102c4c;
-  --blue: #1761bc;
-  --window-radius: 11px;
-  --chrome-height: 31px;
-  --focus: #1568cd;
+  color-scheme: dark;
+  --ink: #f4f4f5;
+  --muted: #a1a1aa;
+  --ice: #0a0a12;
+  --blue: #ccff00;
+  --accent: #ccff00;
+  --window-radius: 16px;
+  --chrome-height: 36px;
+  --focus: #ccff00;
   font-family:
-    "Lucida Grande",
-    "Lucida Sans Unicode",
+    Onest,
+    "Helvetica Neue",
     -apple-system,
     BlinkMacSystemFont,
-    "Helvetica Neue",
     sans-serif;
   font-size: 13px;
   font-weight: 400;
@@ -556,7 +556,7 @@ h1 {
 }
 .weather-window {
   width: 267px;
-  height: 318px;
+  height: 510px;
   left: 51px;
   top: 82px;
 }
@@ -1575,4 +1575,311 @@ h1 {
   .dock-item:focus-visible > svg {
     transform: none;
   }
+}
+
+/* Portfolio brand: near-black ground, lime accent, Onest. */
+.menubar {
+  height: 48px;
+  background: #0a0a12;
+  color: #f4f4f5;
+  border-bottom: 1px solid #ffffff14;
+  box-shadow: none;
+  font-family: Onest, sans-serif;
+}
+.menubar button,
+.menubar a {
+  height: 48px;
+}
+.menubar button:hover,
+.menubar a:hover {
+  background: #ffffff10;
+}
+.menu-brand strong {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.season-switch {
+  display: flex;
+  padding: 3px;
+  border: 1px solid #ffffff1f;
+  border-radius: 999px;
+  background: #ffffff0a;
+}
+.season-switch button {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 500;
+}
+.season-switch button[aria-pressed="true"] {
+  background: #ccff00;
+  color: #0a0a12;
+}
+.desktop {
+  margin-top: 48px;
+  height: calc(100svh - 48px);
+  background-color: #0a0a12;
+  background-image:
+    radial-gradient(#ffffff10 0.7px, transparent 0.7px),
+    radial-gradient(ellipse at 20% 0%, #1a2744 0%, #0a0a12 58%);
+}
+.desktop[data-season="autumn"] {
+  background-image:
+    radial-gradient(#f2c14e22 0.7px, transparent 0.7px),
+    radial-gradient(ellipse at 18% 0%, #8a3414 0%, #2a1008 48%, #0a0a12 100%);
+}
+.desktop[data-season="autumn"] .ridge {
+  background: linear-gradient(#c46a32aa, #4a1c10cc);
+}
+.window {
+  border: 1px solid #ffffff1a;
+  background: #12121ae6;
+  color: #f4f4f5;
+  box-shadow: 0 24px 60px -24px #000c;
+  backdrop-filter: blur(16px);
+}
+.window[data-active="true"] {
+  box-shadow: 0 28px 70px -20px #000e;
+}
+.window[data-active="true"] .titlebar,
+.titlebar {
+  color: #f4f4f5;
+  background: transparent;
+  box-shadow: inset 0 -1px #ffffff14;
+  text-shadow: none;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0;
+}
+.welcome-body {
+  background: transparent;
+}
+h1,
+.welcome-subtitle {
+  font-family: Onest, sans-serif;
+  color: #f4f4f5;
+  letter-spacing: -0.045em;
+}
+h1 {
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 0.95;
+}
+.welcome-subtitle,
+.download-detail,
+.quiet-link {
+  color: #a1a1aa;
+}
+.aqua-button,
+.aqua-button:hover,
+.aqua-button:active {
+  border: 0;
+  border-radius: 999px;
+  background: #ccff00;
+  color: #0a0a12;
+  text-shadow: none;
+  box-shadow: none;
+  filter: none;
+  font-weight: 600;
+}
+.aqua-button:before {
+  display: none;
+}
+.segmented {
+  background: #ffffff0c;
+  border-color: #ffffff1a;
+}
+.segmented button {
+  color: #d4d4d8;
+}
+.segmented button[aria-pressed="true"] {
+  background: #ccff00;
+  color: #0a0a12;
+}
+.mini-button {
+  background: #ffffff10;
+  color: #f4f4f5;
+  border-color: #ffffff1f;
+}
+.desktop-caption,
+.desktop-footer,
+.desktop-footer a,
+.desktop-footer button {
+  color: #e4e4e7;
+}
+#clock {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.readme-body,
+.letter-body,
+.weather-body {
+  background: transparent;
+  color: #e4e4e7;
+  font-family: Onest, sans-serif;
+}
+.readme-body h2,
+.letter-body h2,
+.letter-body p,
+.weather-summary strong,
+.weather-summary span {
+  font-family: Onest, sans-serif;
+  color: #f4f4f5;
+}
+.instructions li > span {
+  background: #ccff00;
+  border-color: #ccff00;
+  color: #0a0a12;
+  box-shadow: none;
+  font-family: Onest, sans-serif;
+}
+.instructions p {
+  color: #d4d4d8;
+}
+.window {
+  border-radius: 20px;
+  background: #101014f5;
+  border-color: #ffffff14;
+}
+.titlebar {
+  justify-content: flex-start;
+  padding-left: 78px;
+  font-size: 12px;
+}
+.light {
+  width: 10px;
+  height: 10px;
+  border: 0;
+  box-shadow: none;
+}
+.light:before {
+  display: none;
+}
+.light.close {
+  background: #ff5f57;
+}
+.light.minimize {
+  background: #febc2e;
+}
+.light.maximize {
+  background: #28c840;
+}
+.dock {
+  height: 68px;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid #ffffff18;
+  border-radius: 22px;
+  background: #12121ad6;
+  box-shadow: 0 18px 50px -20px #000;
+  backdrop-filter: blur(18px);
+}
+.dock:after {
+  display: none;
+}
+.dock-item,
+.dock-item > svg {
+  width: 44px;
+  height: 44px;
+}
+.dock-item {
+  height: 52px;
+}
+.dock-item > svg {
+  filter: none;
+}
+.dock-item i {
+  left: 20px;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  box-shadow: none;
+}
+.dock-separator {
+  width: 1px;
+  height: 28px;
+  margin: 0 6px;
+  background: #ffffff24;
+  box-shadow: none;
+}
+.dock-tooltip {
+  bottom: 58px;
+  border: 1px solid #ffffff1f;
+  background: #0a0a12;
+  color: #f4f4f5;
+  border-radius: 8px;
+  box-shadow: none;
+  font-family: Onest, sans-serif;
+}
+.weather-body .control-group legend,
+.weather-body .wind-control label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a1a1aa;
+  margin-bottom: 8px;
+}
+.weather-body .segmented {
+  gap: 4px;
+  padding: 4px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff0a;
+  box-shadow: none;
+}
+.weather-body .segmented button {
+  border: 0;
+  border-radius: 8px;
+  min-height: 30px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #a1a1aa;
+  text-shadow: none;
+  box-shadow: none;
+}
+.weather-body .segmented button[aria-pressed="true"] {
+  background: #ccff00;
+  color: #0a0a12;
+  box-shadow: none;
+}
+.weather-body .segmented button:hover:not([aria-pressed="true"]) {
+  background: #ffffff14;
+  color: #f4f4f5;
+}
+.weather-body .wind-control output {
+  color: #d4d4d8;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.weather-body .wind-pad {
+  border: 1px solid #ffffff18;
+  border-radius: 14px;
+  background:
+    radial-gradient(#ffffff24 1px, transparent 1.2px) 8px 8px / 16px 16px,
+    #ffffff08;
+  box-shadow: none;
+}
+.weather-body .wind-pad svg {
+  fill: #ccff00;
+}
+.weather-body .wind-pad path {
+  stroke: #ccff00;
+}
+.weather-body .mini-button {
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff12;
+  color: #f4f4f5;
+  box-shadow: none;
+}
+.weather-body .tool-group {
+  display: block;
+}
+.weather-body .tool-group legend {
+  float: none;
+  margin: 0 0 8px;
+}
+.weather-body .tool-group .segmented {
+  width: 100%;
 }

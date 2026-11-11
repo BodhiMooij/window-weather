@@ -416,11 +416,10 @@ async function desktopCheck(run) {
     })`);
     assert.ok(Number.isFinite(media.duration) && media.duration > 0,
       "The supplied MP3 is served and decodes successfully: " + JSON.stringify(media));
-    await p.click("[data-play-mariah]");
     assert.deepEqual(
       await p.evaluate("window.__snowyAudioPlays"),
-      ["mariah-audio", "mariah-audio"],
-      "The desktop Mariah interaction plays the same supplied sound",
+      ["mariah-audio"],
+      "The Mariah terminal command plays the supplied sound",
     );
     await p.evaluate('document.querySelector("#terminal-input").focus()');
     await p.send("Input.insertText", {
@@ -632,7 +631,6 @@ async function downloadCheck(p, run, mobile = false) {
 }
 
 async function supportCheck(p) {
-  await p.click('.menu-right [data-open="letter"]');
   await setAmount(p, "#support-amount", "2");
   await p.evaluate('document.querySelector("#support-form").requestSubmit(); true');
   await p.frame();

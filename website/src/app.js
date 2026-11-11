@@ -579,11 +579,19 @@ function updateCursor() {
 }
 
 function applyWeather() {
+  const autumn = preferences.season === "autumn";
+  desktop.dataset.season = preferences.season;
+  const summary = document.querySelector("#weather-summary-title");
+  const legend = document.querySelector("#intensity-legend");
+  if (summary)
+    summary.textContent = autumn ? "Indoors, with leaves." : "Indoors, with snow.";
+  if (legend) legend.textContent = autumn ? "Leaf fall" : "Snowfall";
   if (!engine) return;
   engine.reducedMotion = reducedMotion;
   engine.setTool(preferences.tool);
   engine.setWind(preferences.windX, preferences.windY);
   engine.setIntensity(intensity[preferences.intensity]);
+  engine.setSeason(preferences.season);
 }
 function updateControls() {
   for (const button of document.querySelectorAll("[data-intensity]"))
@@ -596,12 +604,25 @@ function updateControls() {
       "aria-pressed",
       String(button.dataset.tool === preferences.tool),
     );
+  for (const button of document.querySelectorAll("[data-season]"))
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.season === preferences.season),
+    );
   drawWind();
   updateCursor();
 }
 for (const button of document.querySelectorAll("[data-intensity]"))
   button.addEventListener("click", () => {
     preferences.intensity = button.dataset.intensity;
+    applyWeather();
+    persist();
+    updateControls();
+    wake();
+  });
+for (const button of document.querySelectorAll("[data-season]"))
+  button.addEventListener("click", () => {
+    preferences.season = button.dataset.season === "autumn" ? "autumn" : "winter";
     applyWeather();
     persist();
     updateControls();
@@ -762,8 +783,6 @@ function playMariah() {
   mariahAudio.currentTime = 0;
   mariahAudio.play()?.catch(() => toast("The sound couldn’t play. Give it another try."));
 }
-for (const button of document.querySelectorAll("[data-play-mariah]"))
-  button.addEventListener("click", playMariah);
 
 function terminalLine(text, className = "response") {
   const line = document.createElement("p");

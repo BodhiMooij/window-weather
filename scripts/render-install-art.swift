@@ -84,27 +84,41 @@ func background(_ c: CGContext) {
     label("macOS 14 or later", at: CGPoint(x: 330, y: 396), size: 12,
           ink: color(0xb4cde2), centered: true, in: c)
 }
+func stroke(_ points: [CGPoint], in c: CGContext) {
+    guard let first = points.first else { return }
+    c.move(to: first)
+    for point in points.dropFirst() { c.addLine(to: point) }
+    c.strokePath()
+}
 func icon(_ c: CGContext, size: CGFloat) {
     c.scaleBy(x: size / 1024, y: size / 1024)
-    let box = CGRect(x: 118, y: 100, width: 788, height: 788)
-    let shape = CGPath(roundedRect: box, cornerWidth: 198, cornerHeight: 198, transform: nil)
-    c.saveGState(); c.setShadow(offset: CGSize(width: 0, height: 29), blur: 40, color: color(0x071c38, 0.38))
-    c.setFillColor(color(0x1b68ad)); c.addPath(shape); c.fillPath(); c.restoreGState()
-    c.saveGState(); c.addPath(shape); c.clip()
-    c.drawLinearGradient(gradient([color(0xc9f2ff), color(0x77c1ee), color(0x459fdc), color(0x165ca3)], [0, 0.45, 0.51, 1]),
-                         start: CGPoint(x: 512, y: 100), end: CGPoint(x: 512, y: 888), options: [])
-    c.setFillColor(color(0xffffff, 0.38)); c.move(to: CGPoint(x: 140, y: 377))
-    c.addQuadCurve(to: CGPoint(x: 884, y: 377), control: CGPoint(x: 512, y: 130))
-    c.addLine(to: CGPoint(x: 884, y: 108)); c.addLine(to: CGPoint(x: 140, y: 108)); c.closePath(); c.fillPath()
+    let box = CGRect(x: 64, y: 64, width: 896, height: 896)
+    let shape = CGPath(roundedRect: box, cornerWidth: 224, cornerHeight: 224, transform: nil)
+    c.setFillColor(color(0x0a0a12)); c.addPath(shape); c.fillPath()
+    let scale = box.width / 24
+    c.saveGState()
+    c.translateBy(x: box.minX, y: box.minY)
+    c.scaleBy(x: scale, y: scale)
+    c.setStrokeColor(color(0xccff00))
+    c.setLineWidth(2)
+    c.setLineCap(.round)
+    c.setLineJoin(.round)
+    let flakes: [[CGPoint]] = [
+        [CGPoint(x: 10, y: 4), CGPoint(x: 12, y: 5), CGPoint(x: 14, y: 4)],
+        [CGPoint(x: 12, y: 2), CGPoint(x: 12, y: 8.5), CGPoint(x: 15, y: 10.22)],
+        [CGPoint(x: 17.928, y: 6.268), CGPoint(x: 18.062, y: 8.5), CGPoint(x: 19.928, y: 9.732)],
+        [CGPoint(x: 20.66, y: 7), CGPoint(x: 15.031, y: 10.25), CGPoint(x: 15.041, y: 13.708)],
+        [CGPoint(x: 19.928, y: 14.268), CGPoint(x: 18.062, y: 15.5), CGPoint(x: 17.928, y: 17.732)],
+        [CGPoint(x: 20.66, y: 17), CGPoint(x: 15.031, y: 13.75), CGPoint(x: 12.041, y: 15.488)],
+        [CGPoint(x: 14, y: 20), CGPoint(x: 12, y: 19), CGPoint(x: 10, y: 20)],
+        [CGPoint(x: 12, y: 22), CGPoint(x: 12, y: 15.5), CGPoint(x: 9, y: 13.78)],
+        [CGPoint(x: 6.072, y: 17.732), CGPoint(x: 5.938, y: 15.5), CGPoint(x: 4.072, y: 14.268)],
+        [CGPoint(x: 3.34, y: 17), CGPoint(x: 8.969, y: 13.75), CGPoint(x: 8.959, y: 10.292)],
+        [CGPoint(x: 4.072, y: 9.732), CGPoint(x: 5.938, y: 8.5), CGPoint(x: 6.072, y: 6.268)],
+        [CGPoint(x: 3.34, y: 7), CGPoint(x: 8.969, y: 10.25), CGPoint(x: 11.959, y: 8.512)]
+    ]
+    for flake in flakes { stroke(flake, in: c) }
     c.restoreGState()
-    c.addPath(shape); c.setStrokeColor(color(0x226ea8, 0.84)); c.setLineWidth(10); c.strokePath()
-    c.setStrokeColor(color(0xffffff)); c.setLineWidth(38); c.setLineCap(.round); c.setLineJoin(.round)
-    for ray in 0..<6 {
-        c.saveGState(); c.translateBy(x: 512, y: 497); c.rotate(by: CGFloat(ray) * .pi / 3)
-        c.move(to: .zero); c.addLine(to: CGPoint(x: 0, y: -265))
-        c.move(to: CGPoint(x: -84, y: -221)); c.addLine(to: CGPoint(x: 0, y: -145))
-        c.addLine(to: CGPoint(x: 84, y: -221)); c.strokePath(); c.restoreGState()
-    }
 }
 let arguments = CommandLine.arguments
 if arguments.count != 3 { fatalError("Usage: render-install-art.swift background|icon output-directory") }

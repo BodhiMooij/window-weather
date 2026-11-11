@@ -8,9 +8,9 @@
     />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     />
-    <meta name="theme-color" content="#102c4c" />
+    <meta name="theme-color" content="#0a0a12" />
     <meta
       name="description"
       content="Window Weather lets snow and autumn leaves settle on your Mac windows. They pile up, travel with the window, and sweep away with your cursor."
@@ -25,6 +25,12 @@
     <title>Window Weather for macOS</title>
     <link rel="canonical" href="https://windowweather.bodhimooij.com/" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Onest:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./src/app.js"></script>
   </head>
@@ -35,6 +41,10 @@
         <svg aria-hidden="true"><use href="./assets/icons.svg#snow" /></svg
         ><strong>Window Weather</strong>
       </button>
+      <div class="season-switch" role="group" aria-label="Season">
+        <button data-season="winter" aria-pressed="true">Winter</button
+        ><button data-season="autumn" aria-pressed="false">Autumn</button>
+      </div>
       <nav class="desktop-menu" aria-label="Window Weather menu">
         <button data-open="readme">Read me</button
         ><button data-open="weather">Weather</button
@@ -46,12 +56,11 @@
         >
       </nav>
       <div class="menu-right">
-        <button data-open="letter">Wish list</button>
         <time id="clock" aria-label="Local time">Snow o’clock</time>
       </div>
     </header>
 
-    <main id="desktop" class="desktop" aria-label="Interactive Window Weather desktop">
+    <main id="desktop" class="desktop" data-season="winter" aria-label="Interactive Window Weather desktop">
       <div class="wallpaper-art" aria-hidden="true">
         <div class="ridge ridge-back"></div>
         <div class="ridge ridge-front"></div>
@@ -166,12 +175,19 @@
               <use href="./assets/icons.svg#weather" />
             </svg>
             <div>
-              <strong>Indoors, with snow.</strong
+              <strong id="weather-summary-title">Indoors, with snow.</strong
               ><span>You’re in charge of the forecast.</span>
             </div>
           </div>
           <fieldset class="control-group">
-            <legend>Snowfall</legend>
+            <legend>Season</legend>
+            <div class="segmented" id="season-control">
+              <button data-season="winter" aria-pressed="true">Winter</button
+              ><button data-season="autumn" aria-pressed="false">Autumn</button>
+            </div>
+          </fieldset>
+          <fieldset class="control-group">
+            <legend id="intensity-legend">Snowfall</legend>
             <div class="segmented" id="intensity-control">
               <button data-intensity="light" aria-pressed="false">Light</button
               ><button data-intensity="steady" aria-pressed="true">
@@ -379,9 +395,9 @@
         <svg aria-hidden="true"><use href="./assets/icons.svg#folder" /></svg
         ><span>Start here</span>
       </button>
-      <button class="desktop-file letter-file" data-open="letter">
+      <button class="desktop-file letter-file" data-open="readme">
         <svg aria-hidden="true"><use href="./assets/icons.svg#note" /></svg
-        ><span>wish list.txt</span>
+        ><span>read me.txt</span>
       </button>
       <span class="desktop-caption">Drag a window. Make a little weather.</span>
       <footer class="desktop-footer">
@@ -391,7 +407,6 @@
           rel="noopener noreferrer"
           >View on GitHub</a
         ><button id="tidy-desktop">Tidy desktop</button>
-        <button data-play-mariah aria-label="Play the Mariah defrosting sound">Defrost Mariah</button>
       </footer>
     </main>
 
@@ -401,7 +416,7 @@
         data-open="welcome"
         aria-label="Open About Window Weather"
       >
-        <svg aria-hidden="true"><use href="./assets/icons.svg#snow" /></svg
+        <svg aria-hidden="true"><use href="./assets/icons.svg#dock-snow" /></svg
         ><span class="dock-tooltip">Window Weather</span><i aria-hidden="true"></i>
       </button>
       <button
@@ -409,15 +424,15 @@
         data-open="weather"
         aria-label="Open Weather controls"
       >
-        <svg aria-hidden="true"><use href="./assets/icons.svg#weather" /></svg
+        <svg aria-hidden="true"><use href="./assets/icons.svg#dock-weather" /></svg
         ><span class="dock-tooltip">Weather</span><i aria-hidden="true"></i>
       </button>
       <button class="dock-item" data-open="readme" aria-label="Open Read me">
-        <svg aria-hidden="true"><use href="./assets/icons.svg#note" /></svg
+        <svg aria-hidden="true"><use href="./assets/icons.svg#dock-book" /></svg
         ><span class="dock-tooltip">Read me</span><i aria-hidden="true"></i>
       </button>
       <button class="dock-item" data-open="terminal" aria-label="Open Terminal">
-        <svg aria-hidden="true"><use href="./assets/icons.svg#terminal" /></svg
+        <svg aria-hidden="true"><use href="./assets/icons.svg#dock-terminal" /></svg
         ><span class="dock-tooltip">Terminal</span><i aria-hidden="true"></i>
       </button>
       <span class="dock-separator" aria-hidden="true"></span>
@@ -431,7 +446,7 @@
         ><span class="dock-tooltip">Source code</span></a
       >
       <button class="dock-item" id="clear-snow" aria-label="Clear settled snow">
-        <svg aria-hidden="true"><use href="./assets/icons.svg#trash" /></svg
+        <svg aria-hidden="true"><use href="./assets/icons.svg#dock-trash" /></svg
         ><span class="dock-tooltip">Clear snow</span>
       </button>
     </nav>

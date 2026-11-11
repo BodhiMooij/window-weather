@@ -1,0 +1,123 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag, for example v0.9.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Package and publish
+    runs-on: macos-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - name: Validate tag format
+        shell: bash
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'Use an existing version tag such as v0.9.0.' >&2
+            exit 1
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check source version
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$RELEASE_TAG^{}")"
+          version="$(plutil -extract CFBundleShortVersionString raw App/Info.plist)"
+          test "$RELEASE_TAG" = "v$version"
+      - name: Prepare Metal toolchain
+        run: |
+          if ! xcrun -sdk macosx metal --version >/dev/null 2>&1; then
+            xcodebuild -downloadComponent MetalToolchain
+          fi
+      - name: Test geometry and physics
+        run: swift test
+      - name: Sign, notarize, and package
+        env:
+          SNOWY_DEVELOPER_ID_P12_BASE64: ${{ secrets.SNOWY_DEVELOPER_ID_P12_BASE64 }}
+          SNOWY_DEVELOPER_ID_P12_PASSWORD: ${{ secrets.SNOWY_DEVELOPER_ID_P12_PASSWORD }}
+          SNOWY_CODESIGN_IDENTITY: ${{ secrets.SNOWY_CODESIGN_IDENTITY }}
+          SNOWY_NOTARY_KEY_BASE64: ${{ secrets.SNOWY_NOTARY_KEY_BASE64 }}
+          SNOWY_NOTARY_KEY_ID: ${{ secrets.SNOWY_NOTARY_KEY_ID }}
+          SNOWY_NOTARY_ISSUER_ID: ${{ secrets.SNOWY_NOTARY_ISSUER_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          has_developer_id=1
+          for name in SNOWY_DEVELOPER_ID_P12_BASE64 SNOWY_DEVELOPER_ID_P12_PASSWORD \
+                      SNOWY_CODESIGN_IDENTITY SNOWY_NOTARY_KEY_BASE64 SNOWY_NOTARY_KEY_ID SNOWY_NOTARY_ISSUER_ID; do
+            if [[ -z "${!name}" ]]; then
+              has_developer_id=0
+              break
+            fi
+          done
+
+          if [[ "$has_developer_id" -eq 1 ]]; then
+            echo "Packaging with Developer ID signing and notarization..."
+            previous_umask="$(umask)"
+            umask 077
+            credentials_dir="$(mktemp -d "$RUNNER_TEMP/snowy-signing.XXXXXX")"
+            export SNOWY_CODESIGN_KEYCHAIN="$credentials_dir/release.keychain-db"
+            export SNOWY_NOTARY_PROFILE="snowy-notary"
+            cleanup() {
+              security delete-keychain "$SNOWY_CODESIGN_KEYCHAIN" >/dev/null 2>&1 || true
+              rm -rf "$credentials_dir"
+            }
+            trap cleanup EXIT
+            keychain_password="$(openssl rand -hex 32)"
+            security create-keychain -p "$keychain_password" "$SNOWY_CODESIGN_KEYCHAIN"
+            security set-keychain-settings -lut 3600 "$SNOWY_CODESIGN_KEYCHAIN"
+            security unlock-keychain -p "$keychain_password" "$SNOWY_CODESIGN_KEYCHAIN"
+
+            printf '%s' "$SNOWY_DEVELOPER_ID_P12_BASE64" | /usr/bin/base64 -D > "$credentials_dir/signing.p12"
+            security import "$credentials_dir/signing.p12" -k "$SNOWY_CODESIGN_KEYCHAIN" \
+              -f pkcs12 -P "$SNOWY_DEVELOPER_ID_P12_PASSWORD" -x -T /usr/bin/codesign
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
+              -k "$keychain_password" "$SNOWY_CODESIGN_KEYCHAIN" >/dev/null
+
+            printf '%s' "$SNOWY_NOTARY_KEY_BASE64" | /usr/bin/base64 -D > "$credentials_dir/notary.p8"
+            xcrun notarytool store-credentials "$SNOWY_NOTARY_PROFILE" --keychain "$SNOWY_CODESIGN_KEYCHAIN" \
+              --key "$credentials_dir/notary.p8" --key-id "$SNOWY_NOTARY_KEY_ID" --issuer "$SNOWY_NOTARY_ISSUER_ID"
+            rm -f "$credentials_dir/signing.p12" "$credentials_dir/notary.p8"
+            unset SNOWY_DEVELOPER_ID_P12_BASE64 SNOWY_DEVELOPER_ID_P12_PASSWORD \
+                  SNOWY_NOTARY_KEY_BASE64 SNOWY_NOTARY_KEY_ID SNOWY_NOTARY_ISSUER_ID
+            umask "$previous_umask"
+
+            ./scripts/package-release.sh --notarize
+          else
+            echo "Developer ID secrets not present; packaging locally signed release..."
+            ./scripts/package-release.sh
+          fi
+      - name: Sign Sparkle update
+        env:
+          SNOWY_SPARKLE_PRIVATE_KEY: ${{ secrets.SNOWY_SPARKLE_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          test -n "$SNOWY_SPARKLE_PRIVATE_KEY"
+          printf '%s\n' "$SNOWY_SPARKLE_PRIVATE_KEY" | ./scripts/create-appcast.sh "$RELEASE_TAG"
+      - name: Publish signed release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo 'This release already exists. Publish a new tag for different signed assets.' >&2
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" build/releases/*.dmg build/releases/*.zip build/releases/*.sha256 build/releases/appcast.xml \
+            --verify-tag --latest --title "Snowy $RELEASE_TAG" --notes-file .github/release-notes.md
